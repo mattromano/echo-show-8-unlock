@@ -11,3 +11,9 @@ backups/*
 
 *.zip
 *.img
+*.apk
+*.apkm
+
+# Build output and the local signing key for Kitchen Home
+build/
+keystore/

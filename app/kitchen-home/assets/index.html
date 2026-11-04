@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Kitchen Home</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="home">
+  <section class="top">
+    <div class="clock-block">
+      <div id="clock" class="clock">--:--</div>
+      <div id="date" class="date"></div>
+    </div>
+
+    <div id="weather" class="weather card">
+      <div class="wx-now">
+        <div id="wx-icon" class="wx-icon"></div>
+        <div>
+          <div class="wx-temp"><span id="wx-temp">--</span><span class="deg">°</span></div>
+          <div id="wx-desc" class="wx-desc">Loading weather…</div>
+        </div>
+        <div class="wx-meta">
+          <div id="wx-hilo"></div>
+          <div id="wx-feels"></div>
+          <div id="wx-place" class="muted">El Segundo</div>
+        </div>
+      </div>
+      <div id="wx-days" class="wx-days"></div>
+    </div>
+  </section>
+
+  <section class="apps" id="apps"></section>
+
+  <section class="lights">
+    <div class="lights-head">
+      <span class="section-label">Lights</span>
+      <span id="hue-status" class="muted small"></span>
+    </div>
+    <div id="rooms" class="rooms"></div>
+  </section>
+
+  <nav class="corner">
+    <button id="btn-all" class="round" aria-label="All apps">
+      <svg viewBox="0 0 24 24"><g fill="currentColor"><circle cx="5" cy="5" r="2.2"/><circle cx="12" cy="5" r="2.2"/><circle cx="19" cy="5" r="2.2"/><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/><circle cx="5" cy="19" r="2.2"/><circle cx="12" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/></g></svg>
+    </button>
+    <button id="btn-settings" class="round" aria-label="Settings">
+      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z"/></svg>
+    </button>
+  </nav>
+</main>
+
+<!-- All apps drawer -->
+<div id="drawer" class="sheet hidden">
+  <div class="sheet-head">
+    <h2>All apps</h2>
+    <button class="close" data-close>Done</button>
+  </div>
+  <div id="all-apps" class="all-apps"></div>
+</div>
+
+<!-- Settings -->
+<div id="settings" class="sheet hidden">
+  <div class="sheet-head">
+    <h2>Settings</h2>
+    <button class="close" data-close>Done</button>
+  </div>
+  <div class="settings-body">
+    <div class="card setting">
+      <h3>Philips Hue</h3>
+      <p id="hue-setting-text" class="muted"></p>
+      <div class="row">
+        <button id="hue-pair" class="pill primary">Connect Hue bridge</button>
+        <button id="hue-forget" class="pill">Forget bridge</button>
+      </div>
+      <label class="row small muted">Bridge IP (optional) <input id="hue-ip" inputmode="decimal" placeholder="auto-detect"></label>
+    </div>
+
+    <div class="card setting">
+      <h3>Home screen apps</h3>
+      <p class="muted">Tap apps to add or remove them from the home row (up to 6).</p>
+      <div id="tile-picker" class="tile-picker"></div>
+    </div>
+
+    <div class="card setting">
+      <h3>Display</h3>
+      <label class="row"><input type="checkbox" id="night-dim"> Dim the screen from 10 pm to 6 am</label>
+      <div class="row">
+        <button id="open-wifi" class="pill">Wi-Fi settings</button>
+        <button id="open-android" class="pill">Android settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Brightness sheet for a room -->
+<div id="dimmer" class="modal hidden">
+  <div class="modal-card card">
+    <h3 id="dimmer-title">Room</h3>
+    <input id="dimmer-range" type="range" min="1" max="254" value="200">
+    <div class="row">
+      <button id="dimmer-off" class="pill">Turn off</button>
+      <button class="pill primary" data-close>Done</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
