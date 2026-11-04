@@ -1,0 +1,13 @@
+# Third-party binaries (re-download, don't commit)
+tools/
+
+# Exploit packages, boot images, ROM zips from XDA
+downloads/*
+!downloads/README.md
+
+# Device backups (large, personal data)
+backups/*
+!backups/README.md
+
+*.zip
+*.img
