@@ -6,7 +6,7 @@ It serves `http://<pi>:8765/reading` as JSON, and Kitchen Home polls it every mi
 
 | Pi | Address | Sensor | Room name | Notes |
 |---|---|---|---|---|
-| Pi 4 (`raspberrypi`, Raspberry Pi OS 11) | 192.168.4.34 | Sense HAT | "Sense HAT Pi" (placeholder) | HTS221 humidity chip doesn't respond on I2C (no 0x5f), so temp comes from the LPS25H pressure chip. Pressure is reported too. |
+| Pi 4 (`raspberrypi`, Raspberry Pi OS 11) | 192.168.4.34 | Sense HAT on ribbon cable | "Sense HAT Pi" (placeholder) | HTS221 humidity chip doesn't respond on I2C (no 0x5f), so temp comes from the LPS25H pressure chip. Pressure is reported too. Config: `CPU_K=0`, `OFFSET_C=-2.1`. |
 | Pi + AM2302 | not on the network yet | DHT22/AM2302 | n/a | install with `SENSOR=dht22` (needs `adafruit-circuitpython-dht` or `Adafruit_DHT`) |
 
 ## Install / update on a Pi
@@ -27,8 +27,10 @@ CPU_K=0.35      # Sense HAT self-heating correction: room = raw - CPU_K * (cpu -
 OFFSET_C=0      # fine-tune against a real thermometer
 ```
 
-**Sense HAT calibration:** the HAT sits on top of the Pi, so it reads warm. On 2026-11-04 it read 27.3 °C raw with the CPU at 46 °C, which corrects to 20.7 °C.
-Compare with a thermometer in the same room and adjust `OFFSET_C`.
+**Sense HAT calibration:** this HAT is on a **ribbon cable away from the Pi**, so the CPU self-heating correction is off (`CPU_K=0`).
+Calibrated 2026-11-04 against the AcuRite indoor display: raw 26.9 °C (80.4 °F) vs AcuRite 76.6 °F, giving `OFFSET_C=-2.1`, and the corrected reading is 76.6 °F.
+(The first default, `CPU_K=0.35`, assumed the HAT sat on the Pi and wrongly showed ~69 °F.)
+If you ever mount a HAT directly on a Pi, use `CPU_K` around 0.35 and recalibrate.
 
 ## Gotchas
 
