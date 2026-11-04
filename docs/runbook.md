@@ -56,6 +56,7 @@ Check items off as they're done, and log anything unexpected in the Log section 
 ## 5. Backup
 
 - [x] Device-unique data saved to `backups/2026-11-04-stock/`: persist files, dkb, MISC, logo (`kb` read hangs)
+- [x] TWRP Backup of **Boot** on the Echo: `/sdcard/TWRP/BACKUPS/G6G16D100373015U/2009-12-31--18-07-08_NS65741/` (16 MB). Not enough free space for System. Copying it to the PC over MTP/adb stalled, so only `boot.emmc.win.sha2` reached the PC; the image itself is only on the Echo. Restore it through TWRP > Restore.
 - [ ] Optional: full raw boot/system images (adb in TWRP is unstable; the stock update.bin covers these)
 - TWRP tip: turn off the screen timeout after **every** TWRP boot, or adb drops when the screen locks
 
