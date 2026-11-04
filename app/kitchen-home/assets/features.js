@@ -264,7 +264,7 @@ let lastTouch = Date.now();
 function touch() { lastTouch = Date.now(); }
 ['pointerdown', 'keydown', 'wheel'].forEach((ev) => document.addEventListener(ev, touch, true));
 
-const saverOn = () => store.get('saver.on', true);
+const saverOn = () => store.get('saver.on', false); // off by default: the dashboard stays up
 const saverMins = () => store.get('saver.mins', 5);
 
 function showSaver() {

@@ -22,7 +22,7 @@ as the HOME activity and shows a local HTML dashboard in a full-screen WebView.
   The alarm is a full-screen flash with WebAudio beeps, Stop or +1 min.
 - **Now playing** (0.5): album art, title and artist, with prev/play-pause/next for whatever app has an active media session (Spotify, SmartTube).
   This needs the notification listener (`MediaListener`) enabled; see setup below.
-- **Idle screensaver** (0.5): after 5 min (configurable) without a touch, a full-screen slideshow with a big clock, date and weather. Tap to wake. Not shown while a timer is ringing or a panel is open.
+- **Idle screensaver** (0.5, **off by default** since the user prefers the dashboard always up; turn it on in Settings → Display): after 5 min (configurable) without a touch, a full-screen slideshow with a big clock, date and weather. Tap to wake. Not shown while a timer is ringing or a panel is open.
 
 ## Layout
 
