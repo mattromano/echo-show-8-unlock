@@ -1,0 +1,4 @@
+# Files that run on Linux (Pi) or Android must keep LF line endings.
+pi/** text eol=lf
+scripts/device/** text eol=lf
+*.sh text eol=lf
