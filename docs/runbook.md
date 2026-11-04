@@ -55,8 +55,9 @@ Check items off as they're done, and log anything unexpected in the Log section 
 
 ## 5. Backup
 
-- [ ] Boot TWRP (Volume Up + power). Make a full backup
-- [ ] Copy the backup to `backups/` with `adb pull` and confirm the files are readable
+- [x] Device-unique data saved to `backups/2026-11-04-stock/`: persist files, dkb, MISC, logo (`kb` read hangs)
+- [ ] Optional: full raw boot/system images (adb in TWRP is unstable; the stock update.bin covers these)
+- TWRP tip: turn off the screen timeout after **every** TWRP boot, or adb drops when the screen locks
 
 ## 6. LineageOS (Option B)
 
@@ -80,4 +81,6 @@ Check items off as they're done, and log anything unexpected in the Log section 
 |---|---|---|
 | 2026-11-04 | 0 | Repo created. Platform Tools 37.0.1 installed. Fire OS 6574.1. |
 | 2026-11-04 | 0 | Read the XDA thread. 6575.1 is patched; 6574.1 is confirmed working. Current package is amonet-crown-v2.0.2. |
+| 2026-11-04 | 2 | **Unlocked.** `fastbrick.bat` (run by hand in the Terminal panel) detected CROWN / LK 44072a3-20240709, reported "Exploit most likely successful", and the Echo rebooted into TWRP 3.7.0_9-0 (adb shows `omni_crown`, root shell). |
+| 2026-11-04 | 5 | Backup is partial. TWRP's adb keeps going "offline", partly from the TWRP lock screen (the timeout setting doesn't survive a reboot), and the raw `kb` and `persist` reads hung. Saved: `MISC`, `dkb`, `logo` raw images, and `persist` **as files** (`calibration.bin`, `dha_certificate.pem`). Hashes are in `backups/2026-11-04-stock/SHA256SUMS.txt`. Not saved: `kb`, `boot`, `system`, `metadata`, `swdl`, `expdb`. boot and system can be restored from a stock update.bin (ftvdb.com) through TWRP, per the thread. |
 | 2026-11-04 | 0 | Stock fastboot works (three buttons while connecting power). Kindle Fire driver gives "Android Bootloader Interface" (USB 0BB4:0C01). getvar: product=CROWN, secure=yes, unlock_status=false, lk_build_desc=44072a3-20240709_164449, max-download-size=0x6d00000. This LK matches a reported successful 6.5.7.4 unlock (tjbaker72, 2026-10-30). The patched LK is fbacd25-20260415_110052. |
