@@ -103,6 +103,13 @@ Check items off as they're done, and log anything unexpected in the Log section 
 - [x] **Kitchen Home 0.2** adds a built-in **browser** (`BrowserActivity`) that handles http/https links (fixes Spotify sign-in), passes app callback links (spotify://, intent://) back to apps,
   allows Widevine (protected media) only, and switches automatically to a **desktop user agent** for peacocktv.com, hulu.com and similar sites, which block mobile browsers.
   The Hulu and Peacock tiles now open the websites (`web:hulu`, `web:peacock`). Both sites load in desktop mode. Playback after sign-in is untested.
+- [x] **Kitchen Home 0.3**:
+  - **DRM:** platform Widevine is **L1** (systemId 13812, max HDCP 2.2), via `Native.drmInfo()`. In the browser, Widevine EME works at `SW_SECURE_CRYPTO`; `HW_SECURE_ALL` isn't exposed in WebView.
+  - **Peacock's block** was its inline check `minimumSupportedBrowserVersions` (Chrome ≥ 125), and the WebView is Chrome 118.
+    Desktop mode now reports Chrome 131 and also spoofs `navigator.platform`, `maxTouchPoints`, `window.chrome` and `userAgentData` in JS.
+    Peacock now reaches its sign-in page; Hulu reaches `/welcome`. Playback after sign-in is still untested.
+  - **Tools:** `scripts/cdp-eval.ps1` runs JS in a WebView page on the Echo over DevTools (`adb forward tcp:9222 localabstract:webview_devtools_remote_<pid>`).
+  - **Gotcha:** the broken Hulu app still claims hulu.com links system-wide (an "Open with" prompt). The tiles avoid it by targeting BrowserActivity directly.
 - [ ] Wi-Fi on, then sign in to Netflix, Hulu, Peacock, Spotify and SmartTube, and check that playback works (DRM)
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)

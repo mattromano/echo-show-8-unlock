@@ -179,6 +179,26 @@ public class MainActivity extends Activity {
             }
         }
 
+        /** Widevine details from the platform DRM: security level (L1/L3), version, HDCP. */
+        @JavascriptInterface
+        public String drmInfo() {
+            JSONObject o = new JSONObject();
+            android.media.MediaDrm drm = null;
+            try {
+                java.util.UUID wv = new java.util.UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
+                o.put("widevineSupported", android.media.MediaDrm.isCryptoSchemeSupported(wv));
+                drm = new android.media.MediaDrm(wv);
+                for (String p : new String[] { "securityLevel", "version", "vendor", "systemId", "hdcpLevel", "maxHdcpLevel" }) {
+                    try { o.put(p, drm.getPropertyString(p)); } catch (Exception e) { o.put(p, "n/a"); }
+                }
+            } catch (Exception e) {
+                try { o.put("error", String.valueOf(e)); } catch (Exception ignored) { }
+            } finally {
+                if (drm != null) drm.release();
+            }
+            return o.toString();
+        }
+
         @JavascriptInterface
         public void openSettings() {
             try {

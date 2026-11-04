@@ -43,13 +43,36 @@ public class BrowserActivity extends Activity {
     /** Sites that refuse mobile browsers; they get "desktop site" mode automatically. */
     private static final String[] DESKTOP_HOSTS = { "peacocktv.com", "hulu.com", "disneyplus.com", "max.com", "paramountplus.com" };
     private static final String DESKTOP_UA =
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36";
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
     private static boolean wantsDesktop(String url) {
         String host = Uri.parse(url).getHost();
         if (host == null) return false;
         for (String h : DESKTOP_HOSTS) if (host.equals(h) || host.endsWith("." + h)) return true;
         return false;
+    }
+
+    /**
+     * In desktop mode, make the page's JavaScript view of the browser match the desktop
+     * user agent (platform, touch points, window.chrome, client hints). Injected as early
+     * as WebView allows: at page start and again when the DOM is ready.
+     */
+    private static final String DESKTOP_SPOOF_JS =
+            "(function(){try{if(window.__khDesk)return;window.__khDesk=1;"
+            + "var d=function(o,k,v){try{Object.defineProperty(o,k,{get:function(){return v},configurable:true})}catch(e){}};"
+            + "d(Navigator.prototype,'platform','Win32');"
+            + "d(Navigator.prototype,'maxTouchPoints',0);"
+            + "var b=[{brand:'Chromium',version:'131'},{brand:'Google Chrome',version:'131'},{brand:'Not=A?Brand',version:'99'}];"
+            + "var uad={brands:b,mobile:false,platform:'Windows',getHighEntropyValues:function(){return Promise.resolve({brands:b,mobile:false,platform:'Windows',"
+            + "platformVersion:'15.0.0',architecture:'x86',bitness:'64',model:'',uaFullVersion:'131.0.6778.86',"
+            + "fullVersionList:[{brand:'Chromium',version:'131.0.6778.86'},{brand:'Google Chrome',version:'131.0.6778.86'}]})},toJSON:function(){return{brands:b,mobile:false,platform:'Windows'}}};"
+            + "d(Navigator.prototype,'userAgentData',uad);"
+            + "if(!window.chrome){window.chrome={runtime:{},app:{isInstalled:false},csi:function(){},loadTimes:function(){}};}"
+            + "try{delete window.ontouchstart}catch(e){}"
+            + "}catch(e){}})();";
+
+    private void injectDesktop(WebView v) {
+        if (desktop) v.evaluateJavascript(DESKTOP_SPOOF_JS, null);
     }
 
     private void setDesktop(boolean on) {
@@ -72,11 +95,11 @@ public class BrowserActivity extends Activity {
         bar.setPadding(12, 8, 12, 8);
         bar.setBackgroundColor(0xFF161D27);
 
-        Button back = button("←");
+        Button back = button("\u2190");
         back.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { if (web.canGoBack()) web.goBack(); else finish(); }
         });
-        Button close = button("✕");
+        Button close = button("\u2715");
         close.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { finish(); }
         });
@@ -136,10 +159,18 @@ public class BrowserActivity extends Activity {
             }
             @Override public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 if (!address.hasFocus()) address.setText(url);
+                injectDesktop(view);
+            }
+            @Override public void onPageCommitVisible(WebView view, String url) {
+                injectDesktop(view);
+            }
+            @Override public void onPageFinished(WebView view, String url) {
+                injectDesktop(view);
             }
         });
         web.setWebChromeClient(new WebChromeClient() {
             @Override public void onProgressChanged(WebView view, int p) {
+                if (p >= 10 && p < 40) injectDesktop(view);
                 progress.setProgress(p);
                 progress.setVisibility(p >= 100 ? View.GONE : View.VISIBLE);
             }
