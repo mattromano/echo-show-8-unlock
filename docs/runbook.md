@@ -88,6 +88,9 @@ Check items off as they're done, and log anything unexpected in the Log section 
   Installed with `adb install-multiple base.apk split_config.armeabi_v7a.apk split_config.en.apk split_config.tvdpi.apk`.
   Skipped the dynamic-feature splits; the audiomodel one ships arm64 only.
 - All four launch with no crashes. Offline, they show "no internet" dialogs (`docs/img/launch-*.png`). /data has 950 MB free.
+- [x] **Amazon updates disabled** (done before turning Wi-Fi on). The device had been auto-updating every 2–4 weeks, most recently 2026-10-26.
+  `pm disable-user --user 0` on `com.amazon.device.software.ota`, `com.amazon.device.software.ota.override` and `com.amazon.device.smarthome.ota`.
+  **Undo:** `adb shell pm enable <pkg>`. No pending update in `/data/ota_package` at the time.
 - [ ] Wi-Fi on, then sign in to Netflix, Hulu, Peacock, Spotify and SmartTube, and check that playback works (DRM)
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)
