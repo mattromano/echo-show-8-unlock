@@ -82,6 +82,13 @@ Check items off as they're done, and log anything unexpected in the Log section 
 - [x] **Olauncher is the home screen**: `pm disable-user --user 0 com.amazon.paladin` plus `cmd package set-home-activity app.olauncher/.MainActivity`.
   **Undo:** `adb shell pm enable com.amazon.paladin`. Screenshot: `docs/img/olauncher-home.png`.
 - Netflix is **preinstalled**: `com.netflix.mediaclient.echo` 8.141.2, Amazon's Echo build, launchable. Hulu, Peacock and Silk aren't installed.
+- [x] Hulu 6.31.0 (Fire Tablet build, `com.hulu.plus`) from APKMirror, SHA256 `B600A81D…0A42B7C`
+- [x] Peacock 6.11.11 (armeabi-v7a, `com.peacock.peacockfiretv`) from APKMirror, SHA256 `B6C2722F…EFC72395`
+- [x] Spotify 9.1.36.1938 (`com.spotify.music`) from an APKMirror .apkm, SHA256 `537DE694…3DA5D`.
+  Installed with `adb install-multiple base.apk split_config.armeabi_v7a.apk split_config.en.apk split_config.tvdpi.apk`.
+  Skipped the dynamic-feature splits; the audiomodel one ships arm64 only.
+- All four launch with no crashes. Offline, they show "no internet" dialogs (`docs/img/launch-*.png`). /data has 950 MB free.
+- [ ] Wi-Fi on, then sign in to Netflix, Hulu, Peacock, Spotify and SmartTube, and check that playback works (DRM)
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)
 - [ ] Screen timeout / doze tweaks
