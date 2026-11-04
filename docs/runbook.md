@@ -27,10 +27,11 @@ Check items off as they're done, and log anything unexpected in the Log section 
 
 ## 1. Downloads (manual, from XDA, into `downloads/`)
 
-- [ ] `amonet-crown-v2.0.2.zip` (42 MB), from the attachments on post #1 of the unlock thread
+- [x] `amonet-crown-v2.0.2.zip` (42 MB), from the attachments on post #1 of the unlock thread
+  (SHA256 `45DD602D…0742A`; see `amonet-package-review.md`)
 - [ ] crown `boot-root.zip` (7.7 MB), from the attachments on post #2
 - [ ] crown LineageOS 18.1 zip, from the ROM thread (Option B only; **not** the `checkers` build)
-- [ ] Review the contents of `amonet-crown` before running it
+- [x] Review the contents of `amonet-crown` before running it. Scripts match the source; see `amonet-package-review.md`.
 
 ## 2. Unlock (amonet)
 
