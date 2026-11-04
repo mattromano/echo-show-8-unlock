@@ -115,8 +115,12 @@
       </label>
       <label class="row"><input type="checkbox" id="bg-bing"> Include Bing daily photos</label>
       <h3 style="margin-top:14px">Room sensors</h3>
-      <p class="muted small">One per line: the Pi's address (port 8765 is assumed), e.g. <b>192.168.4.34</b></p>
+      <p class="muted small">One per line: a Pi's address (port 8765 is assumed), e.g. <b>192.168.4.34</b>, or <b>ha:kitchen</b> for Home Assistant's sensor.kitchen_temperature / _humidity.</p>
       <textarea id="sensor-list" rows="3"></textarea>
+      <h3 style="margin-top:14px">Home Assistant</h3>
+      <label class="row small muted">Address <input id="ha-url" class="wide-input" placeholder="http://192.168.4.37:8123"></label>
+      <label class="row small muted">Long-lived access token <input id="ha-token" class="wide-input" type="password" autocomplete="off" placeholder="paste token here"></label>
+      <p id="ha-status" class="muted small"></p>
       <p class="muted small">Your own photos: copy them to <b>Pictures/KitchenHome</b> on the Echo (File Explorer → Echo Show 8 → Internal Storage).</p>
       <div class="row">
         <button id="open-wifi" class="pill">Wi-Fi settings</button>

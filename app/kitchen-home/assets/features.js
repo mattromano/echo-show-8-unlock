@@ -303,15 +303,46 @@ setInterval(() => {
 }, 5000);
 
 /* ---------------------- room temperature sensors ----------------- */
-// Each Pi runs pi/kitchen-sensor/sensor_server.py and serves /reading as JSON.
-const sensorAddrs = () => store.get('sensors', ['192.168.4.34']);
+// Two kinds of entries:
+//   "192.168.4.34"  a Pi running pi/kitchen-sensor/sensor_server.py (serves /reading as JSON)
+//   "ha:kitchen"    Home Assistant entities sensor.kitchen_temperature (+ sensor.kitchen_humidity),
+//                   read with the long-lived token pasted into Settings → Home Assistant.
+const sensorAddrs = () => store.get('sensors', ['192.168.4.34', 'ha:kitchen']);
 const sensorUrl = (a) => (a.startsWith('http') ? a : `http://${a}${a.includes(':') ? '' : ':8765'}/reading`);
+const haUrl = () => store.get('ha.url', 'http://192.168.4.37:8123').replace(/\/+$/, '');
+const haToken = () => store.get('ha.token', '');
+
+async function haState(entity) {
+  const r = await fetchJson(`${haUrl()}/api/states/${entity}`, { headers: { Authorization: `Bearer ${haToken()}` } }, 5000);
+  return r;
+}
+
+/** Reads a Home Assistant "<name>_temperature" / "<name>_humidity" pair into the Pi reading shape. */
+async function readHa(name) {
+  if (!haToken()) return null;
+  const [t, h] = await Promise.all([haState(`sensor.${name}_temperature`), haState(`sensor.${name}_humidity`).catch(() => null)]);
+  let tf = parseFloat(t.state);
+  if (isNaN(tf)) return null;
+  if (/C$/.test(t.attributes.unit_of_measurement || '')) tf = tf * 9 / 5 + 32;
+  const out = {
+    ok: true,
+    room: (t.attributes.friendly_name || name).replace(/\s*temperature$/i, ''),
+    temp_f: tf,
+    updated: Math.floor(Date.parse(t.last_updated) / 1000),
+  };
+  if (h && !isNaN(parseFloat(h.state))) out.humidity = parseFloat(h.state);
+  // A DHT entity can sit unchanged for a while; count "Home Assistant answered" as fresh.
+  out.updated = Math.max(out.updated, Math.floor(Date.now() / 1000) - 60);
+  return out;
+}
+
+const readSensor = (a) => (a.startsWith('ha:') ? readHa(a.slice(3)) : fetchJson(sensorUrl(a), {}, 5000));
 
 async function refreshIndoor() {
   const addrs = sensorAddrs();
   const el = $('#indoor');
   if (!addrs.length) { el.classList.add('hidden'); return; }
-  const results = await Promise.all(addrs.map((a) => fetchJson(sensorUrl(a), {}, 5000).then((r) => r, () => null)));
+  const results = await Promise.all(addrs.map((a) => readSensor(a).then((r) => r, () => null)));
   const cache = store.get('sensorCache', {});
   const now = Date.now() / 1000;
   const html = addrs.map((a, i) => {
@@ -335,6 +366,20 @@ $('#btn-settings').addEventListener('click', () => {
   $('#saver-mins').value = String(saverMins());
   $('#bg-bing').checked = store.get('bg.bing', true);
   $('#sensor-list').value = sensorAddrs().join('\n');
+  $('#ha-url').value = haUrl();
+  $('#ha-token').value = haToken();
+  $('#ha-status').textContent = haToken() ? 'Token saved.' : 'No token yet.';
+});
+$('#ha-url').addEventListener('change', (e) => { store.set('ha.url', e.target.value.trim()); refreshIndoor(); });
+$('#ha-token').addEventListener('change', async (e) => {
+  store.set('ha.token', e.target.value.trim());
+  try {
+    await fetchJson(`${haUrl()}/api/`, { headers: { Authorization: `Bearer ${haToken()}` } }, 5000);
+    $('#ha-status').textContent = 'Connected to Home Assistant.';
+  } catch (err) {
+    $('#ha-status').textContent = 'Could not connect: ' + err.message;
+  }
+  refreshIndoor();
 });
 $('#sensor-list').addEventListener('change', (e) => {
   store.set('sensors', e.target.value.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean));

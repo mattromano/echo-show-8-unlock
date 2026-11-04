@@ -7,7 +7,26 @@ It serves `http://<pi>:8765/reading` as JSON, and Kitchen Home polls it every mi
 | Pi | Address | Sensor | Room name | Notes |
 |---|---|---|---|---|
 | Pi 4 (`raspberrypi`, Raspberry Pi OS 11) | 192.168.4.34 | Sense HAT on ribbon cable | "Sense HAT Pi" (placeholder) | HTS221 humidity chip doesn't respond on I2C (no 0x5f), so temp comes from the LPS25H pressure chip. Pressure is reported too. Config: `CPU_K=0`, `OFFSET_C=-2.1`. |
-| Pi + AM2302 | not on the network yet | DHT22/AM2302 | n/a | install with `SENSOR=dht22` (needs `adafruit-circuitpython-dht` or `Adafruit_DHT`) |
+| Pi 3 B/B+ running **Home Assistant OS 4.11 / Core 0.112.4** | **192.168.4.37** (Wi-Fi, TheBearDen); 192.168.4.36 when on Ethernet | AM2302 module on GPIO4 (+ to pin 1 3.3 V, out to pin 7, − to pin 6) | "Kitchen" | Read by HA's `dht` platform (`sensor.kitchen_temperature`, `sensor.kitchen_humidity`). Kitchen Home reads it via the HA REST API (`ha:kitchen` entry + long-lived token in Settings). |
+
+### Home Assistant Pi (192.168.4.37)
+
+- **Admin SSH (host):** port 22222, root, **RSA key only**. Dropbear 2019.78 predates ed25519.
+  Key: `~/.ssh/id_rsa_haos`, imported from `CONFIG/authorized_keys` on the `hassos-boot` partition. HAOS deletes the CONFIG folder after importing it.
+  The login lands in the `ha >` console and needs a real terminal, so use the Terminal panel:
+  `ssh -i C:\Users\mattr\.ssh\id_rsa_haos -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa -p 22222 root@192.168.4.37`, then type `login` for the host shell.
+- **Wi-Fi:** `nmcli device wifi connect TheBearDen password '…'` (typed by the user). NetworkManager keeps it across reboots. Reserve .37 in the router.
+- **Config:** `/mnt/data/supervisor/homeassistant/configuration.yaml`. The AM2302 entry was appended to the existing `sensor:` list (backup `configuration.yaml.bak`):
+  ```yaml
+    - platform: dht
+      sensor: AM2302
+      pin: 4
+      name: Kitchen
+      monitored_conditions: [temperature, humidity]
+  ```
+  Check with `docker exec homeassistant python -m homeassistant --script check_config -c /config`, then `docker restart homeassistant`.
+- **First readings:** 76.1 °F, 57.3 % (2026-11-04).
+- The old Home Assistant is "Unsupported/Unhealthy" because of its age, but it runs fine. The web UI takes several minutes after boot on the Pi 3.
 
 ## Install / update on a Pi
 
@@ -31,6 +50,8 @@ OFFSET_C=0      # fine-tune against a real thermometer
 Calibrated 2026-11-04 against the AcuRite indoor display: raw 26.9 °C (80.4 °F) vs AcuRite 76.6 °F, giving `OFFSET_C=-2.1`, and the corrected reading is 76.6 °F.
 (The first default, `CPU_K=0.35`, assumed the HAT sat on the Pi and wrongly showed ~69 °F.)
 If you ever mount a HAT directly on a Pi, use `CPU_K` around 0.35 and recalibrate.
+**Drift seen later the same day:** raw went to 28.2 °C as the CPU warmed from 47 to 53 °C, so it reported 79 °F while the AM2302 read 76.3 °F.
+The HAT still tracks CPU heat a little even on the ribbon (roughly `CPU_K ≈ 0.2`). Recalibrate with a second AcuRite reading if it matters.
 
 ## Gotchas
 
