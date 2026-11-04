@@ -79,6 +79,8 @@ Check items off as they're done, and log anything unexpected in the Log section 
 - [x] Olauncher 6.9.17 from GitHub tanujnotes/Olauncher, SHA256 `BC72DF3B…AE5AA19`. Package `app.olauncher`.
   Fossify and Neo need API 26+.
   `cmd package set-home-activity` isn't enough: Amazon's `com.amazon.paladin` home has system priority 50 and still wins.
+- [x] **Olauncher is the home screen**: `pm disable-user --user 0 com.amazon.paladin` plus `cmd package set-home-activity app.olauncher/.MainActivity`.
+  **Undo:** `adb shell pm enable com.amazon.paladin`. Screenshot: `docs/img/olauncher-home.png`.
 - Netflix is **preinstalled**: `com.netflix.mediaclient.echo` 8.141.2, Amazon's Echo build, launchable. Hulu, Peacock and Silk aren't installed.
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)
