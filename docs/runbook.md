@@ -22,6 +22,7 @@ Check items off as they're done, and log anything unexpected in the Log section 
 - [x] Platform Tools in `tools/platform-tools/`
 - [x] USB driver installed (Amazon Kindle Fire driver)
 - [x] Data-capable micro-USB cable confirmed (Windows sees the device)
+- [x] **Plug straight into a motherboard USB port. No hubs, monitors or front panels.**
 - [x] Stock fastboot reachable; `fastboot getvar` works
 - [ ] Read the last pages of both XDA threads for 6.5.7.4 reports or patch news
 
@@ -55,7 +56,8 @@ Check items off as they're done, and log anything unexpected in the Log section 
 
 ## 5. Backup
 
-- [x] Device-unique data saved to `backups/2026-11-04-stock/`: persist files, dkb, MISC, logo (`kb` read hangs)
+- [x] **Full stock backup** in `backups/2026-11-04-stock/`: raw images of boot, system, persist, kb, dkb, metadata, swdl, expdb, MISC and logo, plus persist files and the TWRP boot backup. Sizes match the device and SHA256s are in `SHA256SUMS.txt`. Not copied: lk, preloader, tee and recovery, which we never touch.
+- **Lesson:** all the earlier adb/MTP stalls were caused by the USB 2.0 hub (Genesys `05E3:0608`) and/or the old cable. Plugged straight into a motherboard port with a new cable, everything copied cleanly at about 13.6 MB/s.
 - [x] TWRP Backup of **Boot** on the Echo: `/sdcard/TWRP/BACKUPS/G6G16D100373015U/2009-12-31--18-07-08_NS65741/` (16 MB). Not enough free space for System. Copying it to the PC over MTP/adb stalled, so only `boot.emmc.win.sha2` reached the PC; the image itself is only on the Echo. Restore it through TWRP > Restore.
 - [ ] Optional: full raw boot/system images (adb in TWRP is unstable; the stock update.bin covers these)
 - TWRP tip: turn off the screen timeout after **every** TWRP boot, or adb drops when the screen locks
