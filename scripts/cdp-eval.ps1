@@ -8,7 +8,7 @@ if (-not $page) { throw "No page matching '$Match'" }
 $ws = New-Object System.Net.WebSockets.ClientWebSocket
 $ct = [Threading.CancellationToken]::None
 $ws.ConnectAsync([Uri]$page.webSocketDebuggerUrl, $ct).Wait()
-$msg = @{ id = 1; method = 'Runtime.evaluate'; params = @{ expression = $Expr; returnByValue = $true; awaitPromise = $true } } | ConvertTo-Json -Depth 5 -Compress
+$msg = @{ id = 1; method = 'Runtime.evaluate'; params = @{ expression = $Expr; returnByValue = $true; awaitPromise = $true; userGesture = $true } } | ConvertTo-Json -Depth 5 -Compress
 $bytes = [Text.Encoding]::UTF8.GetBytes($msg)
 $ws.SendAsync([ArraySegment[byte]]$bytes, 'Text', $true, $ct).Wait()
 $buf = New-Object byte[] 1048576; $sb = New-Object Text.StringBuilder

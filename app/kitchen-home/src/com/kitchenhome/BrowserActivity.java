@@ -37,6 +37,8 @@ public class BrowserActivity extends Activity {
     private EditText address;
     private ProgressBar progress;
     private Button desktopBtn;
+    private View fullscreenView;
+    private WebChromeClient.CustomViewCallback fullscreenCallback;
     private String mobileUa;
     private boolean desktop;
 
@@ -69,6 +71,16 @@ public class BrowserActivity extends Activity {
             + "d(Navigator.prototype,'userAgentData',uad);"
             + "if(!window.chrome){window.chrome={runtime:{},app:{isInstalled:false},csi:function(){},loadTimes:function(){}};}"
             + "try{delete window.ontouchstart}catch(e){}"
+            // Android's WebView CDM offers Widevine SW_SECURE_CRYPTO but not SW_SECURE_DECODE, which
+            // desktop players ask for. Request the level we do have; the license server still decides.
+            + "var R=navigator.requestMediaKeySystemAccess&&navigator.requestMediaKeySystemAccess.bind(navigator);"
+            + "if(R){navigator.requestMediaKeySystemAccess=function(ks,cfgs){"
+            + "if(ks!=='com.widevine.alpha'||!Array.isArray(cfgs))return R(ks,cfgs);"
+            + "var asked=null,mapped=cfgs.map(function(c){var n=Object.assign({},c);"
+            + "['videoCapabilities','audioCapabilities'].forEach(function(k){if(Array.isArray(c[k]))n[k]=c[k].map(function(v){"
+            + "if(v&&v.robustness==='SW_SECURE_DECODE'){asked='SW_SECURE_DECODE';return Object.assign({},v,{robustness:'SW_SECURE_CRYPTO'});}return v;});});return n;});"
+            + "return R(ks,mapped).then(function(acc){if(!asked)return acc;var g=acc.getConfiguration.bind(acc);"
+            + "acc.getConfiguration=function(){var c=g();['videoCapabilities','audioCapabilities'].forEach(function(k){(c[k]||[]).forEach(function(v){if(v.robustness==='SW_SECURE_CRYPTO')v.robustness=asked;});});return c;};return acc;});};}"
             + "}catch(e){}})();";
 
     private void injectDesktop(WebView v) {
@@ -84,6 +96,8 @@ public class BrowserActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Don't let the Echo's screen sleep while watching something.
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -135,6 +149,7 @@ public class BrowserActivity extends Activity {
         progress = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         progress.setMax(100);
 
+        WebView.setWebContentsDebuggingEnabled(true);
         web = new WebView(this);
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
@@ -173,6 +188,23 @@ public class BrowserActivity extends Activity {
                 if (p >= 10 && p < 40) injectDesktop(view);
                 progress.setProgress(p);
                 progress.setVisibility(p >= 100 ? View.GONE : View.VISIBLE);
+            }
+            // Real fullscreen for video players (the site's fullscreen button).
+            @Override public void onShowCustomView(View view, CustomViewCallback callback) {
+                if (fullscreenView != null) { callback.onCustomViewHidden(); return; }
+                fullscreenView = view;
+                fullscreenCallback = callback;
+                ((ViewGroup) getWindow().getDecorView()).addView(view, new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+            }
+            @Override public void onHideCustomView() {
+                if (fullscreenView == null) return;
+                ((ViewGroup) getWindow().getDecorView()).removeView(fullscreenView);
+                fullscreenView = null;
+                if (fullscreenCallback != null) fullscreenCallback.onCustomViewHidden();
+                fullscreenCallback = null;
             }
             @Override public void onPermissionRequest(PermissionRequest request) {
                 // Allow DRM (Widevine) for streaming sites; nothing else.
@@ -262,7 +294,16 @@ public class BrowserActivity extends Activity {
 
     @Override
     public void onBackPressed() {
+        if (fullscreenView != null) { exitFullscreen(); return; }
         if (web.canGoBack()) web.goBack(); else super.onBackPressed();
+    }
+
+    private void exitFullscreen() {
+        if (fullscreenView == null) return;
+        ((ViewGroup) getWindow().getDecorView()).removeView(fullscreenView);
+        fullscreenView = null;
+        if (fullscreenCallback != null) fullscreenCallback.onCustomViewHidden();
+        fullscreenCallback = null;
     }
 
     @Override

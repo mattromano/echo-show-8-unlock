@@ -110,6 +110,13 @@ Check items off as they're done, and log anything unexpected in the Log section 
     Peacock now reaches its sign-in page; Hulu reaches `/welcome`. Playback after sign-in is still untested.
   - **Tools:** `scripts/cdp-eval.ps1` runs JS in a WebView page on the Echo over DevTools (`adb forward tcp:9222 localabstract:webview_devtools_remote_<pid>`).
   - **Gotcha:** the broken Hulu app still claims hulu.com links system-wide (an "Open with" prompt). The tiles avoid it by targeting BrowserActivity directly.
+- [x] Uninstalled the broken `com.hulu.plus` and `com.peacock.peacockfiretv` apps (approved). /data has 1.0 GB free.
+- [x] **Peacock web plays (Kitchen Home 0.4).**
+  - **Cause:** the player's media probe (`scripts/device/media-probe.js`, injected via `scripts/cdp.ps1`) showed it requires Widevine robustness `SW_SECURE_DECODE`.
+    WebView only offers `SW_SECURE_CRYPTO` (HW_* isn't available to WebView).
+  - **Fix:** desktop mode maps SW_SECURE_DECODE requests to SW_SECURE_CRYPTO, and Peacock's license server accepts it.
+  - **Result:** 540p (768x432 at the start), about 24 fps with few dropped frames when no DevTools probe is attached. The heavy stutter seen earlier happened while the probe was logging every media call.
+  - **Browser:** real fullscreen (`onShowCustomView`) and keep-screen-on added.
 - [ ] Wi-Fi on, then sign in to Netflix, Hulu, Peacock, Spotify and SmartTube, and check that playback works (DRM)
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)
