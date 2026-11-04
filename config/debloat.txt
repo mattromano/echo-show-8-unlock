@@ -1,0 +1,67 @@
+# Amazon packages removed for user 0 (`pm uninstall -k --user 0`). The APKs stay in /system,
+# so `cmd package install-existing <pkg>` restores any of them. scripts/debloat.ps1 applies/restores this list.
+# Lines starting with # are ignored. Format: package   # what it is
+
+# --- Alexa voice + Alexa UI ---
+amazon.speech.sim                                   # Alexa wake word / speech engine (biggest CPU user)
+amazon.speech.davs.davcservice                      # Alexa speech/voice data service
+com.amazon.alexa.awaservice                         # Alexa web/audio service
+com.amazon.alexa.beaconbroadcaster                  # BLE beacon broadcaster (presence)
+com.amazon.alexa.datastore.app                      # Alexa local data store
+com.amazon.alexa.externalmediaplayer.fireos         # Alexa control of media apps
+com.amazon.alexa.identity                           # Alexa identity/session
+com.amazon.alexa.timeoutmanagerapp                  # Alexa UI timeouts
+com.amazon.alexa.visionapp                          # camera-based presence / vision features
+com.amazon.alexa.webmediaplayer.fireos              # Alexa web media player
+com.amazon.alexa.youtube.app                        # Alexa's YouTube wrapper (SmartTube replaces it)
+com.amazon.alexadirectivebrokerservice              # routes Alexa cloud directives to the device
+com.amazon.alexaviz                                 # Alexa visual cards
+com.amazon.alarms                                   # Alexa alarms/timers
+com.amazon.bishop                                   # Alexa voice UI client (crashes without amazon.speech.sim)
+com.amazon.paladin                                  # Amazon home screen (replaced by Kitchen Home; re-enables itself on reboot if only disabled)
+com.amazon.ambienthome                              # ambient home screen content
+com.amazon.knight.ecs                               # environment context (presence/ambient sensing)
+com.amazon.knight.hds                               # human detection (camera)
+com.amazon.knight.blink                             # Blink camera integration
+com.amazon.virtual.dash.knight.app                  # Dash replenishment
+com.amazon.spotify.mediabrowserservice              # Alexa <-> Spotify bridge (Spotify app is separate)
+com.amazon.wha.mediabrowserservice                  # multi-room music bridge
+com.amazon.audiohome                                # multi-room audio
+
+# --- Calling / Drop In / conferencing ---
+com.amazon.a4b.conferencing.chime                   # Chime meetings
+com.amazon.a4b.mcc                                  # Alexa for Business
+com.amazon.callexperiencecontroller.capabilityagent # calling UI agent
+com.amazon.comms.knightmessaging                    # Alexa messaging
+com.amazon.comms.messagingcontroller                # messaging controller
+com.amazon.comms.multimodaltachyonarm               # calling / Drop In engine
+com.amazon.communication.discovery                  # calling discovery
+com.amazon.rtcsessioncontroller                     # real-time call sessions
+
+# --- Amazon smart-home hub radios + Sidewalk mesh (Hue bridge is unaffected) ---
+com.amazon.device.smarthome.adapters.ble
+com.amazon.device.smarthome.adapters.echo
+com.amazon.device.smarthome.adapters.wifi
+com.amazon.device.smarthome.dshs.consentmanagementca
+com.amazon.device.smarthome.dshs.endpointdetectorCA
+com.amazon.device.smarthome.dshs.multimodalux
+com.amazon.device.smarthome.dshs.services
+com.amazon.gloria.smarthome
+com.amazon.smarthomemapviewapp
+com.amazon.neo.minerva.slingshot.blemesh            # BLE mesh
+com.ring.halo.messaging                             # Amazon Sidewalk
+com.amazon.whisperjoin.middleware.v2                # "Frustration-free setup" for other devices
+com.amazon.whisperjoin.wss.wifiprovisioner
+com.amazon.wifi.sync                                # syncs Wi-Fi passwords to Amazon
+
+# --- Ads, analytics, telemetry, crash/log upload ---
+com.amazon.hybridadidservice                        # advertising ID
+com.amazon.apl.awsanalyticsextension                # AWS analytics
+com.amazon.device.metrics                           # device metrics upload
+com.amazon.wirelessmetrics.service                  # Wi-Fi metrics upload
+com.amazon.dp.logger
+com.amazon.logan                                    # log upload
+com.amazon.device.crashmanager                      # crash report upload
+com.amazon.neo.minerva.logcat                       # logcat upload to Minerva metrics
+com.fireos.usagestats.proxy                         # app usage stats
+com.amazon.diode.eventsender                        # event telemetry

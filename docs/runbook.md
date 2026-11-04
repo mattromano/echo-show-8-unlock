@@ -133,10 +133,20 @@ Check items off as they're done, and log anything unexpected in the Log section 
   - **Tried disabling Alexa speech** (`pm disable-user amazon.speech.sim`). It cut the total to 177%, **but it's a PERSISTENT system app.**
     Android kept relaunching it, and it crashed every ~2 minutes (`No such service ...SIMArcusSyncService`), showing a **"SpeechUI has stopped"** dialog.
     **Reverted** with `pm enable amazon.speech.sim`, and the crashes stopped. **Don't disable this package.**
-  - **Current compromise:** all speech.sim threads moved to `/dev/cpuctl/bg_non_interactive` (cpu.shares 52 vs 1024) and reniced to 19.
-    Alexa still works, but under load it gets about 5% CPU, so streaming wins. **This resets on reboot or when the process restarts.** Re-apply with:
-    `p=$(pidof amazon.speech.sim); for t in /proc/$p/task/*; do echo ${t##*/} > /dev/cpuctl/bg_non_interactive/tasks; done` (adb root shell).
-  - Every other Amazon service was under 1% each, so they were left alone.
+  - A cpuctl background-group compromise was tried next, but Peacock still lagged, and the user decided to drop Alexa and Amazon tracking entirely.
+- [x] **Debloat (2026-11-04).** 56 Amazon packages were removed for user 0 with `pm uninstall -k --user 0`. The list is in **`config/debloat.txt`**: Alexa voice/UI, calling/Drop In,
+  smart-home hub radios + Sidewalk, ad ID, analytics, telemetry, Bishop, and paladin. The APKs stay in /system.
+  - **Apply:** `scripts\debloat.ps1`. **Restore everything:** `scripts\debloat.ps1 -Restore`. **Restore one:** `-Restore -Only <pkg>` (or `adb shell cmd package install-existing <pkg>`).
+  - **Why uninstall-for-user instead of disable:** a *disabled* persistent app gets relaunched and crash-loops ("SpeechUI has stopped").
+    Uninstalled-for-user apps aren't started at boot. paladin also **re-enabled itself** on reboot when it was only disabled, so it's uninstalled-for-user now too.
+  - **Bishop** (Alexa voice client) crashed once after the first reboot because it needs speech.sim, so it was added to the list.
+  - **Verified after two reboots:** boots clean, no crashes, no ANRs, Kitchen Home stays home, Wi-Fi and time OK, OTA still disabled. Idle CPU is 94%.
+  - **Peacock playback CPU: 279% → 153% of one core.** audioserver went from 61% to 18%, and Alexa's speech engine is gone.
+  - **Kept on purpose:** WebView, keyboard (bluestone), echoaudioservice/whad (speaker audio path), Bluetooth, Wi-Fi profile manager, timezone, MAP auth,
+    Netflix's dependencies (knightwebview), the shared `*.sdk.library` / Metrics / DeviceMessaging libraries that apps load, OOBE, Prime Video, and the Appstore.
+  - **Boot-loop fallback** (never needed): TWRP (Volume Up at power-on), then `adb shell rm /data/system/users/0/package-restrictions.xml`.
+    That resets *all* per-user install/enable states, which also re-enables OTA and paladin, so re-disable OTA before turning Wi-Fi on.
+  - Full system package list from before the debloat: `docs/amazon-packages-before.txt`.
 - [ ] Wi-Fi on, then sign in to Netflix, Hulu, Peacock, Spotify and SmartTube, and check that playback works (DRM)
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)
