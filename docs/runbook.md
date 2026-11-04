@@ -95,6 +95,14 @@ Check items off as they're done, and log anything unexpected in the Log section 
   It shows weather (Open-Meteo, 90245), 6 app tiles, and Hue rooms. Hue is paired with the bridge at 192.168.4.2, with 3 rooms: Bedroom, Living room, Office.
 - [x] **Control the Echo from the PC**: scrcpy v5.0.1 (Genymobile, SHA-256 verified against the release's SHA256SUMS.txt) in `tools/scrcpy-win64-v5.0.1/`.
   Run `scripts\echo-screen.ps1`. It uses the project adb. Alt+H = Home, Alt+B = Back, Ctrl+V pastes the PC clipboard.
+- Streaming app results (2026-11-04, online):
+  - **Hulu app (Fire Tablet build):** "App Not Owned". It's Amazon Appstore DRM, so the Amazon account needs an entitlement.
+  - **Peacock 6.11.11:** "Update Required". Peacock retired it, and the newer Fire Tablet builds are arm64 only.
+  - **Spotify:** "install a browser". There was no app that handles https links.
+  - **Netflix (Echo build):** screenshots come out blank (a secure surface, as expected for DRM video). Its log shows one `MediaDrm ... Unsupported scheme (-2006)` property query. Playback still needs confirming.
+- [x] **Kitchen Home 0.2** adds a built-in **browser** (`BrowserActivity`) that handles http/https links (fixes Spotify sign-in), passes app callback links (spotify://, intent://) back to apps,
+  allows Widevine (protected media) only, and switches automatically to a **desktop user agent** for peacocktv.com, hulu.com and similar sites, which block mobile browsers.
+  The Hulu and Peacock tiles now open the websites (`web:hulu`, `web:peacock`). Both sites load in desktop mode. Playback after sign-in is untested.
 - [ ] Wi-Fi on, then sign in to Netflix, Hulu, Peacock, Spotify and SmartTube, and check that playback works (DRM)
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)

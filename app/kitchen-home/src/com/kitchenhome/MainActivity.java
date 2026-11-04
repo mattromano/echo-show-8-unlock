@@ -165,6 +165,20 @@ public class MainActivity extends Activity {
             }
         }
 
+        /** Opens a web page in the built-in browser (used for Hulu / Peacock web tiles). */
+        @JavascriptInterface
+        public boolean openUrl(String url) {
+            try {
+                Intent i = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                        .setClass(MainActivity.this, BrowserActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
         @JavascriptInterface
         public void openSettings() {
             try {

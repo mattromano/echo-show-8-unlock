@@ -11,12 +11,21 @@ const CONFIG = {
   lat: 33.9192, lon: -118.4165, place: 'El Segundo', tz: 'America/Los_Angeles',
   defaultTiles: [
     'com.netflix.mediaclient.echo',
-    'com.hulu.plus',
-    'com.peacock.peacockfiretv',
+    'web:hulu',
+    'web:peacock',
     'org.smarttube.stable',
     'com.spotify.music',
     'com.android.settings',
   ],
+  // The Hulu/Peacock Android apps don't run here (Amazon ownership check / retired 32-bit build),
+  // so these tiles open the websites in Kitchen Home's browser in desktop mode.
+  webTiles: {
+    'web:hulu': { label: 'Hulu', url: 'https://www.hulu.com/hub/home', bg: '#1ce783', fg: '#0b0f14', mark: 'hulu' },
+    'web:peacock': { label: 'Peacock', url: 'https://www.peacocktv.com/watch/home', bg: '#000000', fg: '#ffffff', mark: 'P' },
+    'web:browser': { label: 'Browser', url: 'https://duckduckgo.com/', bg: '#263142', fg: '#eef2f6', mark: 'www' },
+  },
+  // Old tile ids from v0.1 that should be swapped for web tiles.
+  migrate: { 'com.hulu.plus': 'web:hulu', 'com.peacock.peacockfiretv': 'web:peacock' },
   labels: { 'org.smarttube.stable': 'YouTube', 'com.netflix.mediaclient.echo': 'Netflix', 'com.peacock.peacockfiretv': 'Peacock' },
   weatherEveryMs: 15 * 60 * 1000,
   hueEveryMs: 8 * 1000,
@@ -141,20 +150,35 @@ function renderWeather(w, stale = false) {
 /* ---------------------------- apps ----------------------------- */
 let allApps = [];
 const iconCache = {};
+function webBadge(w) {
+  const size = w.mark.length > 2 ? 15 : 26;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 54"><rect width="54" height="54" rx="12" fill="${w.bg}"/>`
+    + `<text x="27" y="${w.mark.length > 2 ? 32 : 36}" text-anchor="middle" font-family="Roboto,Arial,sans-serif" font-weight="700" font-size="${size}" fill="${w.fg}">${w.mark}</text></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
 function iconFor(pkg) {
-  if (!(pkg in iconCache)) iconCache[pkg] = N.icon(pkg) || '';
+  if (!(pkg in iconCache)) {
+    const w = CONFIG.webTiles[pkg];
+    iconCache[pkg] = w ? webBadge(w) : (N.icon(pkg) || '');
+  }
   return iconCache[pkg];
 }
 function labelFor(pkg) {
+  if (CONFIG.webTiles[pkg]) return CONFIG.webTiles[pkg].label;
   if (CONFIG.labels[pkg]) return CONFIG.labels[pkg];
   const a = allApps.find((x) => x.pkg === pkg);
   return a ? a.label : pkg.split('.').pop();
 }
-function tiles() { return store.get('tiles', CONFIG.defaultTiles); }
+function tiles() {
+  const t = store.get('tiles', CONFIG.defaultTiles);
+  const m = t.map((p) => CONFIG.migrate[p] || p);
+  if (m.join() !== t.join()) store.set('tiles', m);
+  return m;
+}
 
 function tileHtml(pkg) {
   const icon = iconFor(pkg);
-  const missing = !N.installed(pkg);
+  const missing = !CONFIG.webTiles[pkg] && !N.installed(pkg);
   return `<button class="tile${missing ? ' missing' : ''}" data-pkg="${pkg}">`
     + (icon ? `<img src="${icon}" alt="">` : '<div style="width:54px;height:54px;border-radius:12px;background:#263142"></div>')
     + `<span>${labelFor(pkg)}</span></button>`;
@@ -181,12 +205,21 @@ function renderTilePicker() {
 
 function loadApps() {
   try { allApps = JSON.parse(N.apps()); } catch (e) { allApps = []; }
+  // Web shortcuts first, then installed apps.
+  const web = Object.keys(CONFIG.webTiles).map((k) => ({ pkg: k, label: CONFIG.webTiles[k].label }));
+  allApps = web.concat(allApps.filter((a) => a.pkg !== 'com.kitchenhome'));
+}
+
+function openTile(id) {
+  const w = CONFIG.webTiles[id];
+  if (w) return N.openUrl ? N.openUrl(w.url) : (window.open(w.url), true);
+  return N.launch(id);
 }
 
 document.addEventListener('click', (e) => {
   const t = e.target.closest('[data-pkg]');
   if (t) {
-    if (!N.launch(t.dataset.pkg)) toast('That app is not installed');
+    if (!openTile(t.dataset.pkg)) toast('That app is not installed');
     closeSheets();
     return;
   }
