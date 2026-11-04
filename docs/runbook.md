@@ -44,14 +44,14 @@ Check items off as they're done, and log anything unexpected in the Log section 
 
 ## 3. Root boot image
 
-- [ ] Enter hacked fastboot (Volume Down while connecting power)
-- [ ] `fastboot oem flags 61`
-- [ ] `fastboot flash boot downloads\boot-root.img` (the **crown** image)
-- [ ] `fastboot reboot`
+- [x] Enter hacked fastboot (`adb reboot bootloader` from TWRP works too)
+- [x] `fastboot oem flags 61`, which reported `fos_flags set to 3d`
+- [x] `fastboot flash boot downloads\boot-root\boot-root.img` (the **crown** image, built from 6.5.7.1; see `boot-root-review.md`)
+- [x] `fastboot reboot`. The first boot showed the Amazon logo, then dropped back to hacked fastboot. A second `fastboot reboot` booted Fire OS normally.
 
 ## 4. Jailbroken Fire OS (Option A stops here)
 
-- [ ] Boot Fire OS. Run `adb shell settings put global disable_bouncer 1`
+- [x] Boot Fire OS. Run `adb shell settings put global disable_bouncer 1`
 - [ ] Sideload apps with `adb install <apk>`
 
 ## 5. Backup
@@ -85,5 +85,6 @@ Check items off as they're done, and log anything unexpected in the Log section 
 | 2026-11-04 | 0 | Repo created. Platform Tools 37.0.1 installed. Fire OS 6574.1. |
 | 2026-11-04 | 0 | Read the XDA thread. 6575.1 is patched; 6574.1 is confirmed working. Current package is amonet-crown-v2.0.2. |
 | 2026-11-04 | 2 | **Unlocked.** `fastbrick.bat` (run by hand in the Terminal panel) detected CROWN / LK 44072a3-20240709, reported "Exploit most likely successful", and the Echo rebooted into TWRP 3.7.0_9-0 (adb shows `omni_crown`, root shell). |
+| 2026-11-04 | 3-4 | **Rooted Fire OS.** boot-root.img flashed. Fire OS 6574.1 boots with the 6.5.7.1 boot image; adb runs as root (`uid=0`, context `u:r:su:s0`), SELinux is Enforcing, `disable_bouncer=1`, and Wi-Fi is still off. /data has 1.3 GB free. Launcher is `com.amazon.paladin`. |
 | 2026-11-04 | 5 | Backup is partial. TWRP's adb keeps going "offline", partly from the TWRP lock screen (the timeout setting doesn't survive a reboot), and the raw `kb` and `persist` reads hung. Saved: `MISC`, `dkb`, `logo` raw images, and `persist` **as files** (`calibration.bin`, `dha_certificate.pem`). Hashes are in `backups/2026-11-04-stock/SHA256SUMS.txt`. Not saved: `kb`, `boot`, `system`, `metadata`, `swdl`, `expdb`. boot and system can be restored from a stock update.bin (ftvdb.com) through TWRP, per the thread. |
 | 2026-11-04 | 0 | Stock fastboot works (three buttons while connecting power). Kindle Fire driver gives "Android Bootloader Interface" (USB 0BB4:0C01). getvar: product=CROWN, secure=yes, unlock_status=false, lk_build_desc=44072a3-20240709_164449, max-download-size=0x6d00000. This LK matches a reported successful 6.5.7.4 unlock (tjbaker72, 2026-10-30). The patched LK is fbacd25-20260415_110052. |
