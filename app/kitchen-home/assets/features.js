@@ -302,11 +302,43 @@ setInterval(() => {
   if (saverOn() && !document.hidden && !Timers.ringing && !sheetOpen && Date.now() - lastTouch > saverMins() * 60000) showSaver();
 }, 5000);
 
+/* ---------------------- room temperature sensors ----------------- */
+// Each Pi runs pi/kitchen-sensor/sensor_server.py and serves /reading as JSON.
+const sensorAddrs = () => store.get('sensors', ['192.168.4.34']);
+const sensorUrl = (a) => (a.startsWith('http') ? a : `http://${a}${a.includes(':') ? '' : ':8765'}/reading`);
+
+async function refreshIndoor() {
+  const addrs = sensorAddrs();
+  const el = $('#indoor');
+  if (!addrs.length) { el.classList.add('hidden'); return; }
+  const results = await Promise.all(addrs.map((a) => fetchJson(sensorUrl(a), {}, 5000).then((r) => r, () => null)));
+  const cache = store.get('sensorCache', {});
+  const now = Date.now() / 1000;
+  const html = addrs.map((a, i) => {
+    let r = results[i];
+    if (r && r.ok) cache[a] = r; else r = cache[a];
+    if (!r || r.temp_f === undefined) return '';
+    const stale = now - (r.updated || 0) > 15 * 60;
+    return `<div class="it${stale ? ' stale' : ''}"><span>${r.room}</span><b>${Math.round(r.temp_f)}°</b>`
+      + (r.humidity !== undefined ? `<span class="h">${Math.round(r.humidity)}%</span>` : '') + '</div>';
+  }).join('');
+  store.set('sensorCache', cache);
+  el.innerHTML = html;
+  el.classList.toggle('hidden', !html);
+}
+setInterval(refreshIndoor, 60 * 1000);
+refreshIndoor();
+
 /* ------------------------ settings wiring ----------------------- */
 $('#btn-settings').addEventListener('click', () => {
   $('#saver-on').checked = saverOn();
   $('#saver-mins').value = String(saverMins());
   $('#bg-bing').checked = store.get('bg.bing', true);
+  $('#sensor-list').value = sensorAddrs().join('\n');
+});
+$('#sensor-list').addEventListener('change', (e) => {
+  store.set('sensors', e.target.value.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean));
+  refreshIndoor();
 });
 $('#saver-on').addEventListener('change', (e) => store.set('saver.on', e.target.checked));
 $('#saver-mins').addEventListener('change', (e) => store.set('saver.mins', +e.target.value));

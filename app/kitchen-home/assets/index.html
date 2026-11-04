@@ -33,6 +33,7 @@
         </div>
       </div>
       <div id="wx-days" class="wx-days"></div>
+      <div id="indoor" class="indoor hidden"></div>
     </div>
   </section>
 
@@ -113,6 +114,9 @@
         <select id="saver-mins"><option value="2">2 min</option><option value="5">5 min</option><option value="10">10 min</option><option value="20">20 min</option></select>
       </label>
       <label class="row"><input type="checkbox" id="bg-bing"> Include Bing daily photos</label>
+      <h3 style="margin-top:14px">Room sensors</h3>
+      <p class="muted small">One per line: the Pi's address (port 8765 is assumed), e.g. <b>192.168.4.34</b></p>
+      <textarea id="sensor-list" rows="3"></textarea>
       <p class="muted small">Your own photos: copy them to <b>Pictures/KitchenHome</b> on the Echo (File Explorer → Echo Show 8 → Internal Storage).</p>
       <div class="row">
         <button id="open-wifi" class="pill">Wi-Fi settings</button>

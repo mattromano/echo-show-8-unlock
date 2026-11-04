@@ -1,0 +1,13 @@
+[Unit]
+Description=Kitchen Home room sensor (temperature JSON on :8765)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=pi
+ExecStart=/usr/bin/python3 /home/pi/kitchen-sensor/sensor_server.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
