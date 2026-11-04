@@ -404,7 +404,7 @@ function openSheet(sel) {
   if (sel === '#settings') { updateHueSettingText(); renderTilePicker(); $('#night-dim').checked = store.get('nightDim', true); }
   $(sel).classList.remove('hidden');
 }
-function closeSheets() { ['#drawer', '#settings', '#dimmer'].forEach((s) => $(s).classList.add('hidden')); }
+function closeSheets() { ['#drawer', '#settings', '#dimmer', '#timer-sheet'].forEach((s) => $(s).classList.add('hidden')); }
 
 $('#btn-all').addEventListener('click', () => openSheet('#drawer'));
 $('#btn-settings').addEventListener('click', () => openSheet('#settings'));

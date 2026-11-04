@@ -7,11 +7,16 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<!-- Rotating photo background (two layers cross-fade) -->
+<div id="bg" class="bg"><div class="bg-layer"></div><div class="bg-layer"></div></div>
+<div class="bg-shade"></div>
+
 <main id="home">
   <section class="top">
     <div class="clock-block">
       <div id="clock" class="clock">--:--</div>
       <div id="date" class="date"></div>
+      <div id="timer-chips" class="timer-chips"></div>
     </div>
 
     <div id="weather" class="weather card">
@@ -33,15 +38,33 @@
 
   <section class="apps" id="apps"></section>
 
-  <section class="lights">
-    <div class="lights-head">
-      <span class="section-label">Lights</span>
-      <span id="hue-status" class="muted small"></span>
+  <section class="bottom">
+    <div class="lights">
+      <div class="lights-head">
+        <span class="section-label">Lights</span>
+        <span id="hue-status" class="muted small"></span>
+      </div>
+      <div id="rooms" class="rooms"></div>
     </div>
-    <div id="rooms" class="rooms"></div>
+
+    <div id="np" class="np card hidden">
+      <img id="np-art" class="np-art" alt="">
+      <div class="np-text">
+        <div id="np-title" class="np-title"></div>
+        <div id="np-artist" class="np-artist muted"></div>
+        <div class="np-controls">
+          <button data-media="prev" aria-label="Previous"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 6h2v12H6zM9.5 12l8.5 6V6z"/></svg></button>
+          <button id="np-toggle" data-media="toggle" aria-label="Play/pause"></button>
+          <button data-media="next" aria-label="Next"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <nav class="corner">
+    <button id="btn-timer" class="round" aria-label="Kitchen timer">
+      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 1h6v2H9zm10.03 6.39 1.42-1.42-1.41-1.41-1.42 1.42A9 9 0 1 0 19.03 7.39zM12 20a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm1-11h-2v5h2z"/></svg>
+    </button>
     <button id="btn-all" class="round" aria-label="All apps">
       <svg viewBox="0 0 24 24"><g fill="currentColor"><circle cx="5" cy="5" r="2.2"/><circle cx="12" cy="5" r="2.2"/><circle cx="19" cy="5" r="2.2"/><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/><circle cx="5" cy="19" r="2.2"/><circle cx="12" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/></g></svg>
     </button>
@@ -86,11 +109,43 @@
     <div class="card setting">
       <h3>Display</h3>
       <label class="row"><input type="checkbox" id="night-dim"> Dim the screen from 10 pm to 6 am</label>
+      <label class="row"><input type="checkbox" id="saver-on"> Photo screensaver after
+        <select id="saver-mins"><option value="2">2 min</option><option value="5">5 min</option><option value="10">10 min</option><option value="20">20 min</option></select>
+      </label>
+      <label class="row"><input type="checkbox" id="bg-bing"> Include Bing daily photos</label>
+      <p class="muted small">Your own photos: copy them to <b>Pictures/KitchenHome</b> on the Echo (File Explorer → Echo Show 8 → Internal Storage).</p>
       <div class="row">
         <button id="open-wifi" class="pill">Wi-Fi settings</button>
         <button id="open-android" class="pill">Android settings</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Kitchen timer picker -->
+<div id="timer-sheet" class="modal hidden">
+  <div class="modal-card card timer-card">
+    <h3>Kitchen timer</h3>
+    <div class="presets">
+      <button class="preset" data-mins="1">1<small>min</small></button>
+      <button class="preset" data-mins="3">3<small>min</small></button>
+      <button class="preset" data-mins="5">5<small>min</small></button>
+      <button class="preset" data-mins="10">10<small>min</small></button>
+      <button class="preset" data-mins="15">15<small>min</small></button>
+      <button class="preset" data-mins="20">20<small>min</small></button>
+      <button class="preset" data-mins="30">30<small>min</small></button>
+      <button class="preset" data-mins="60">1<small>hr</small></button>
+    </div>
+    <div class="custom">
+      <button class="pill" data-adj="-5">−5</button>
+      <button class="pill" data-adj="-1">−1</button>
+      <div class="custom-val"><span id="custom-mins">12</span><small> min</small></div>
+      <button class="pill" data-adj="1">+1</button>
+      <button class="pill" data-adj="5">+5</button>
+      <button id="custom-start" class="pill primary">Start</button>
+    </div>
+    <div id="timer-list" class="timer-list"></div>
+    <div class="row end"><button class="pill" data-close>Close</button></div>
   </div>
 </div>
 
@@ -106,8 +161,33 @@
   </div>
 </div>
 
+<!-- Timer finished: full-screen alarm -->
+<div id="ring" class="ring hidden">
+  <div class="ring-inner">
+    <div class="ring-title">Timer done</div>
+    <div id="ring-label" class="ring-label"></div>
+    <div class="row center">
+      <button id="ring-snooze" class="pill big">+1 min</button>
+      <button id="ring-stop" class="pill primary big">Stop</button>
+    </div>
+  </div>
+</div>
+
+<!-- Idle screensaver -->
+<div id="saver" class="saver hidden">
+  <div class="bg-layer"></div><div class="bg-layer"></div>
+  <div class="saver-shade"></div>
+  <div class="saver-info">
+    <div id="saver-clock" class="saver-clock"></div>
+    <div id="saver-sub" class="saver-sub"></div>
+    <div id="saver-timers" class="timer-chips"></div>
+  </div>
+  <div id="saver-credit" class="saver-credit"></div>
+</div>
+
 <div id="toast" class="toast hidden"></div>
 
 <script src="app.js"></script>
+<script src="features.js"></script>
 </body>
 </html>

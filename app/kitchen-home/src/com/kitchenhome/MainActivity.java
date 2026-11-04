@@ -36,7 +36,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 
         WebView.setWebContentsDebuggingEnabled(true);
         web = new WebView(this);
@@ -54,7 +56,21 @@ public class MainActivity extends Activity {
         web.addJavascriptInterface(new Bridge(), "Native");
         setContentView(web);
         hideSystemUi();
+        web.setWebViewClient(new WebViewClient() {
+            @Override public void onPageFinished(WebView view, String url) {
+                deliverTimer(getIntent());
+            }
+        });
         web.loadUrl("file:///android_asset/index.html");
+    }
+
+    /** If this launch came from a finished kitchen timer, tell the page to ring. */
+    private void deliverTimer(Intent intent) {
+        if (web == null || intent == null || !intent.hasExtra("timerDone")) return;
+        int id = intent.getIntExtra("timerDone", 0);
+        String label = intent.getStringExtra("timerLabel");
+        intent.removeExtra("timerDone");
+        web.evaluateJavascript("window.onTimerDone && window.onTimerDone(" + id + "," + JSONObject.quote(label == null ? "" : label) + ")", null);
     }
 
     private void hideSystemUi() {
@@ -81,6 +97,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent.hasExtra("timerDone")) { deliverTimer(intent); return; }
         // Pressing Home while already home: close any open panel.
         if (web != null) web.evaluateJavascript("window.onHomePressed && window.onHomePressed()", null);
     }
@@ -106,7 +124,116 @@ public class MainActivity extends Activity {
         return "data:image/png;base64," + Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP);
     }
 
+    private android.media.session.MediaController currentController() {
+        try {
+            android.media.session.MediaSessionManager msm =
+                    (android.media.session.MediaSessionManager) getSystemService(MEDIA_SESSION_SERVICE);
+            List<android.media.session.MediaController> list =
+                    msm.getActiveSessions(new android.content.ComponentName(this, MediaListener.class));
+            android.media.session.MediaController best = null;
+            for (android.media.session.MediaController c : list) {
+                if (c.getMetadata() == null) continue;
+                android.media.session.PlaybackState st = c.getPlaybackState();
+                if (st != null && st.getState() == android.media.session.PlaybackState.STATE_PLAYING) return c;
+                if (best == null) best = c;
+            }
+            return best;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private class Bridge {
+        /** file:// URLs of photos in /sdcard/Pictures/KitchenHome (for the background slideshow). */
+        @JavascriptInterface
+        public String localPhotos() {
+            JSONArray arr = new JSONArray();
+            try {
+                java.io.File dir = new java.io.File(android.os.Environment.getExternalStorageDirectory(), "Pictures/KitchenHome");
+                if (!dir.isDirectory()) dir.mkdirs();
+                java.io.File[] files = dir.listFiles();
+                if (files != null) {
+                    for (java.io.File f : files) {
+                        String n = f.getName().toLowerCase();
+                        if (n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png") || n.endsWith(".webp")) {
+                            arr.put(android.net.Uri.fromFile(f).toString());
+                        }
+                    }
+                }
+            } catch (Exception ignored) { }
+            return arr.toString();
+        }
+
+        /** Rings at endMs even if another app (Peacock, Spotify) is in front. */
+        @JavascriptInterface
+        public void scheduleTimer(int id, double endMs, String label) {
+            android.app.AlarmManager am = (android.app.AlarmManager) getSystemService(ALARM_SERVICE);
+            Intent i = new Intent(MainActivity.this, TimerReceiver.class).putExtra("id", id).putExtra("label", label);
+            android.app.PendingIntent pi = android.app.PendingIntent.getBroadcast(MainActivity.this, id, i,
+                    android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+            am.setExactAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, (long) endMs, pi);
+        }
+
+        @JavascriptInterface
+        public void cancelTimer(int id) {
+            android.app.AlarmManager am = (android.app.AlarmManager) getSystemService(ALARM_SERVICE);
+            Intent i = new Intent(MainActivity.this, TimerReceiver.class);
+            android.app.PendingIntent pi = android.app.PendingIntent.getBroadcast(MainActivity.this, id, i,
+                    android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+            am.cancel(pi);
+            pi.cancel();
+        }
+
+        /** What's playing in other apps (Spotify, SmartTube...). Art only when withArt is true. */
+        @JavascriptInterface
+        public String nowPlaying(boolean withArt) {
+            JSONObject o = new JSONObject();
+            try {
+                android.media.session.MediaController c = currentController();
+                if (c == null) return "null";
+                android.media.MediaMetadata md = c.getMetadata();
+                android.media.session.PlaybackState st = c.getPlaybackState();
+                o.put("pkg", c.getPackageName());
+                try {
+                    o.put("app", String.valueOf(getPackageManager().getApplicationLabel(getPackageManager().getApplicationInfo(c.getPackageName(), 0))));
+                } catch (Exception e) { o.put("app", c.getPackageName()); }
+                o.put("title", md.getString(android.media.MediaMetadata.METADATA_KEY_TITLE));
+                String artist = md.getString(android.media.MediaMetadata.METADATA_KEY_ARTIST);
+                if (artist == null) artist = md.getString(android.media.MediaMetadata.METADATA_KEY_ALBUM_ARTIST);
+                o.put("artist", artist);
+                o.put("album", md.getString(android.media.MediaMetadata.METADATA_KEY_ALBUM));
+                o.put("playing", st != null && st.getState() == android.media.session.PlaybackState.STATE_PLAYING);
+                if (withArt) {
+                    Bitmap art = md.getBitmap(android.media.MediaMetadata.METADATA_KEY_ALBUM_ART);
+                    if (art == null) art = md.getBitmap(android.media.MediaMetadata.METADATA_KEY_ART);
+                    if (art != null) {
+                        Bitmap small = Bitmap.createScaledBitmap(art, 160, 160 * art.getHeight() / Math.max(1, art.getWidth()), true);
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        small.compress(Bitmap.CompressFormat.JPEG, 85, out);
+                        o.put("art", "data:image/jpeg;base64," + Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP));
+                    }
+                }
+            } catch (Exception e) {
+                return "null";
+            }
+            return o.toString();
+        }
+
+        @JavascriptInterface
+        public void media(final String action) {
+            runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    android.media.session.MediaController c = currentController();
+                    if (c == null) return;
+                    android.media.session.MediaController.TransportControls t = c.getTransportControls();
+                    if ("play".equals(action)) t.play();
+                    else if ("pause".equals(action)) t.pause();
+                    else if ("next".equals(action)) t.skipToNext();
+                    else if ("prev".equals(action)) t.skipToPrevious();
+                }
+            });
+        }
+
         @JavascriptInterface
         public boolean launch(String pkg) {
             try {
