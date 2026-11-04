@@ -307,7 +307,8 @@ setInterval(() => {
 //   "192.168.4.34"  a Pi running pi/kitchen-sensor/sensor_server.py (serves /reading as JSON)
 //   "ha:kitchen"    Home Assistant entities sensor.kitchen_temperature (+ sensor.kitchen_humidity),
 //                   read with the long-lived token pasted into Settings → Home Assistant.
-const sensorAddrs = () => store.get('sensors', ['192.168.4.34', 'ha:kitchen']);
+// Office = Sense HAT Pi; Living room = AM2302 on the Home Assistant Pi; Bedroom Pi still to come.
+const sensorAddrs = () => store.get('sensors', ['192.168.4.34', 'ha:living_room']);
 const sensorUrl = (a) => (a.startsWith('http') ? a : `http://${a}${a.includes(':') ? '' : ':8765'}/reading`);
 const haUrl = () => store.get('ha.url', 'http://192.168.4.37:8123').replace(/\/+$/, '');
 const haToken = () => store.get('ha.token', '');

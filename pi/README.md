@@ -6,8 +6,10 @@ It serves `http://<pi>:8765/reading` as JSON, and Kitchen Home polls it every mi
 
 | Pi | Address | Sensor | Room name | Notes |
 |---|---|---|---|---|
-| Pi 4 (`raspberrypi`, Raspberry Pi OS 11) | 192.168.4.34 | Sense HAT on ribbon cable | "Sense HAT Pi" (placeholder) | HTS221 humidity chip doesn't respond on I2C (no 0x5f), so temp comes from the LPS25H pressure chip. Pressure is reported too. Config: `CPU_K=0`, `OFFSET_C=-2.1`. |
-| Pi 3 B/B+ running **Home Assistant OS 4.11 / Core 0.112.4** | **192.168.4.37** (Wi-Fi, TheBearDen); 192.168.4.36 when on Ethernet | AM2302 module on GPIO4 (+ to pin 1 3.3 V, out to pin 7, − to pin 6) | "Kitchen" | Read by HA's `dht` platform (`sensor.kitchen_temperature`, `sensor.kitchen_humidity`). Kitchen Home reads it via the HA REST API (`ha:kitchen` entry + long-lived token in Settings). |
+| Pi 4 (`raspberrypi`, Raspberry Pi OS 11) | 192.168.4.34 | Sense HAT on ribbon cable | **Office** | HTS221 humidity chip doesn't respond on I2C (no 0x5f), so temp comes from the LPS25H pressure chip. Pressure is reported too. Config: `CPU_K=0`, `OFFSET_C=-2.1`. |
+| Pi 3 B/B+ running **Home Assistant OS 4.11 / Core 0.112.4** | **192.168.4.37** (Wi-Fi, TheBearDen); 192.168.4.36 when on Ethernet | AM2302 module on GPIO4 (+ to pin 1 3.3 V, out to pin 7, − to pin 6) | **Living room** | Read by HA's `dht` platform (`sensor.living_room_temperature`, `sensor.living_room_humidity`). Kitchen Home reads it via the HA REST API (`ha:living_room` entry + long-lived token in Settings). |
+
+| Bedroom Pi | not set up yet | ? | **Bedroom** | Planned: Raspberry Pi Imager with Wi-Fi + this PC's SSH key, then `install.sh` |
 
 ### Home Assistant Pi (192.168.4.37)
 
@@ -21,7 +23,7 @@ It serves `http://<pi>:8765/reading` as JSON, and Kitchen Home polls it every mi
     - platform: dht
       sensor: AM2302
       pin: 4
-      name: Kitchen
+      name: Living room   # renamed from Kitchen
       monitored_conditions: [temperature, humidity]
   ```
   Check with `docker exec homeassistant python -m homeassistant --script check_config -c /config`, then `docker restart homeassistant`.
