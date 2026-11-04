@@ -74,7 +74,13 @@ Check items off as they're done, and log anything unexpected in the Log section 
 
 ## 7. Apps / setup
 
-- [ ] Media: Jellyfin, Kodi, VLC, SmartTube / NewPipe
+- Device: Android 7.1.2 (API 25), `armeabi-v7a` only, 1280x800 at 213 dpi. Widevine engine present.
+- [x] SmartTube 32.68 stable (armeabi-v7a) from GitHub yuliskov/SmartTube, SHA256 `2130B23B…3A60D9`. Package `org.smarttube.stable`.
+- [x] Olauncher 6.9.17 from GitHub tanujnotes/Olauncher, SHA256 `BC72DF3B…AE5AA19`. Package `app.olauncher`.
+  Fossify and Neo need API 26+.
+  `cmd package set-home-activity` isn't enough: Amazon's `com.amazon.paladin` home has system priority 50 and still wins.
+- Netflix is **preinstalled**: `com.netflix.mediaclient.echo` 8.141.2, Amazon's Echo build, launchable. Hulu, Peacock and Silk aren't installed.
+- [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)
 - [ ] Screen timeout / doze tweaks
 
