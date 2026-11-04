@@ -3,7 +3,7 @@
 A custom home screen for the unlocked Echo Show 8. It's a tiny Android app (`com.kitchenhome`) that registers
 as the HOME activity and shows a local HTML dashboard in a full-screen WebView.
 
-![Kitchen Home on the Echo](../../docs/img/kitchen-home-v1.png)
+![Kitchen Home on the Echo](../../docs/img/kitchen-home-hue.png)
 
 ## What's on it
 

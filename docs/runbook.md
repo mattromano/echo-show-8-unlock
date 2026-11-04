@@ -91,6 +91,8 @@ Check items off as they're done, and log anything unexpected in the Log section 
 - [x] **Amazon updates disabled** (done before turning Wi-Fi on). The device had been auto-updating every 2–4 weeks, most recently 2026-10-26.
   `pm disable-user --user 0` on `com.amazon.device.software.ota`, `com.amazon.device.software.ota.override` and `com.amazon.device.smarthome.ota`.
   **Undo:** `adb shell pm enable <pkg>`. No pending update in `/data/ota_package` at the time.
+- [x] **Kitchen Home** (`com.kitchenhome`, see `app/kitchen-home/`) built, installed and set as the home screen.
+  It shows weather (Open-Meteo, 90245), 6 app tiles, and Hue rooms. Hue is paired with the bridge at 192.168.4.2, with 3 rooms: Bedroom, Living room, Office.
 - [ ] Wi-Fi on, then sign in to Netflix, Hulu, Peacock, Spotify and SmartTube, and check that playback works (DRM)
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)
