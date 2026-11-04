@@ -50,8 +50,9 @@ OFFSET_C=0      # fine-tune against a real thermometer
 Calibrated 2026-11-04 against the AcuRite indoor display: raw 26.9 °C (80.4 °F) vs AcuRite 76.6 °F, giving `OFFSET_C=-2.1`, and the corrected reading is 76.6 °F.
 (The first default, `CPU_K=0.35`, assumed the HAT sat on the Pi and wrongly showed ~69 °F.)
 If you ever mount a HAT directly on a Pi, use `CPU_K` around 0.35 and recalibrate.
-**Drift seen later the same day:** raw went to 28.2 °C as the CPU warmed from 47 to 53 °C, so it reported 79 °F while the AM2302 read 76.3 °F.
-The HAT still tracks CPU heat a little even on the ribbon (roughly `CPU_K ≈ 0.2`). Recalibrate with a second AcuRite reading if it matters.
+**Second check, same afternoon:** the HAT reported 79.0 °F (raw 28.2 °C, CPU 53 °C) while the AcuRite read 78.1 °F, up from 76.6.
+The room itself warmed. A two-point fit gives only `CPU_K ≈ 0.13`, which is about 0.5 °F of CPU influence.
+The ~0.9 °F gap matches the AcuRite sitting on the floor while the HAT is at desk height, so the calibration was **left as-is** on purpose.
 
 ## Gotchas
 
