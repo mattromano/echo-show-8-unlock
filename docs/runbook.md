@@ -20,8 +20,9 @@ Check items off as they're done, and log anything unexpected in the Log section 
 - [x] Fire OS is 6.5.7.4
 - [ ] Wi-Fi turned off on the Echo
 - [x] Platform Tools in `tools/platform-tools/`
-- [ ] USB driver installed (Amazon Kindle Fire driver, or Google USB driver as a fallback)
-- [ ] Data-capable micro-USB cable confirmed (Windows sees the device)
+- [x] USB driver installed (Amazon Kindle Fire driver)
+- [x] Data-capable micro-USB cable confirmed (Windows sees the device)
+- [x] Stock fastboot reachable; `fastboot getvar` works
 - [ ] Read the last pages of both XDA threads for 6.5.7.4 reports or patch news
 
 ## 1. Downloads (manual, from XDA, into `downloads/`)
@@ -78,3 +79,4 @@ Check items off as they're done, and log anything unexpected in the Log section 
 |---|---|---|
 | 2026-11-04 | 0 | Repo created. Platform Tools 37.0.1 installed. Fire OS 6574.1. |
 | 2026-11-04 | 0 | Read the XDA thread. 6575.1 is patched; 6574.1 is confirmed working. Current package is amonet-crown-v2.0.2. |
+| 2026-11-04 | 0 | Stock fastboot works (three buttons while connecting power). Kindle Fire driver gives "Android Bootloader Interface" (USB 0BB4:0C01). getvar: product=CROWN, secure=yes, unlock_status=false, lk_build_desc=44072a3-20240709_164449, max-download-size=0x6d00000. This LK matches a reported successful 6.5.7.4 unlock (tjbaker72, 2026-10-30). The patched LK is fbacd25-20260415_110052. |
