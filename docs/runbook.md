@@ -118,6 +118,15 @@ Check items off as they're done, and log anything unexpected in the Log section 
   - **Result:** 540p (768x432 at the start), about 24 fps with few dropped frames when no DevTools probe is attached. The heavy stutter seen earlier happened while the probe was logging every media call.
   - **Browser:** real fullscreen (`onShowCustomView`) and keep-screen-on added.
   - **Confirmed by watching on the device (2026-11-04):** smooth and fullscreen, quality acceptable.
+- [x] **Performance fix (2026-11-04).** Spotify was unusable: pages took minutes, and no song played after 3–4 minutes.
+  - **Not the network:** -30 dBm, 866 Mbps link, 3 ms ping.
+  - **CPU was ~96% busy.** Every sideloaded app was `interpret-only`; Spotify had **no compiled code at all** (`status: invalid`). Spotify Canvas was also decoding ~5 Mbps H.264 loops.
+  - **Fix:** `adb shell cmd package compile -m speed-profile -f com.spotify.music` (94 s; a full `-m speed` ran 10 min and failed, probably dex2oat OOM).
+    Also `speed-profile` for SmartTube, and `speed` for Kitchen Home and Olauncher. The build script now compiles Kitchen Home after install.
+  - **Animations:** `window_animation_scale`, `transition_animation_scale` and `animator_duration_scale` set to 0. **Undo:** `settings delete global <key>`.
+  - **Result:** CPU 77% idle with Spotify open.
+  - **Rule:** after sideloading any app, run `cmd package compile -m speed-profile -f <pkg>` (or `-m speed` for small apps).
+  - **Tips:** turn off Canvas in Spotify settings, and close scrcpy when not using it (mirroring costs CPU through surfaceflinger and the encoder).
 - [ ] Wi-Fi on, then sign in to Netflix, Hulu, Peacock, Spotify and SmartTube, and check that playback works (DRM)
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)

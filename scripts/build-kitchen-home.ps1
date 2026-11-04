@@ -68,4 +68,6 @@ Write-Host "Built $out\kitchen-home.apk ($((Get-Item "$out\kitchen-home.apk").Le
 if ($Install) {
     $adb = Join-Path $tools 'platform-tools\adb.exe'
     Run $adb @('install', '-r', "$out\kitchen-home.apk")
+    # Sideloaded apps land as "interpret-only" on this Fire OS build and never get compiled; do it now.
+    Run $adb @('shell', 'cmd', 'package', 'compile', '-m', 'speed', '-f', 'com.kitchenhome')
 }
