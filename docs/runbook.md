@@ -127,6 +127,14 @@ Check items off as they're done, and log anything unexpected in the Log section 
   - **Result:** CPU 77% idle with Spotify open.
   - **Rule:** after sideloading any app, run `cmd package compile -m speed-profile -f <pkg>` (or `-m speed` for small apps).
   - **Tips:** turn off Canvas in Spotify settings, and close scrcpy when not using it (mirroring costs CPU through surfaceflinger and the encoder).
+- [x] **Background CPU audit during Peacock playback** (per-process deltas from `/proc/*/stat` over 20 s; 100% = one core of 4):
+  - **Before:** kitchenhome 65, audioserver 61, `amazon.speech.sim` (Alexa wake word / echo cancellation) 55, WebView renderer 43, surfaceflinger 13, mediacodec 10, mediadrm 8. **Total 279%.**
+  - **Mic-off button:** speech.sim unchanged (55%), total 260%. Not effective.
+  - **Alexa speech disabled** (user chose to give up Alexa voice): `pm disable-user --user 0 amazon.speech.sim`.
+    It's a PERSISTENT system app, so it respawned after `kill`, but it now sits idle (can't bind its services). Reniced to 19 as well.
+  - **After:** audioserver 18%, speech.sim ~0. **Total 177%.** About one core freed.
+  - Every other Amazon service was under 1% each, so they were left alone.
+  - **Undo:** `adb shell pm enable amazon.speech.sim`, then reboot. Alexa voice, including Spotify and Hue voice control, stays off until then.
 - [ ] Wi-Fi on, then sign in to Netflix, Hulu, Peacock, Spotify and SmartTube, and check that playback works (DRM)
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)
