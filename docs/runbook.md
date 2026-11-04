@@ -117,6 +117,7 @@ Check items off as they're done, and log anything unexpected in the Log section 
   - **Fix:** desktop mode maps SW_SECURE_DECODE requests to SW_SECURE_CRYPTO, and Peacock's license server accepts it.
   - **Result:** 540p (768x432 at the start), about 24 fps with few dropped frames when no DevTools probe is attached. The heavy stutter seen earlier happened while the probe was logging every media call.
   - **Browser:** real fullscreen (`onShowCustomView`) and keep-screen-on added.
+  - **Confirmed by watching on the device (2026-11-04):** smooth and fullscreen, quality acceptable.
 - [ ] Wi-Fi on, then sign in to Netflix, Hulu, Peacock, Spotify and SmartTube, and check that playback works (DRM)
 - [ ] Media: Jellyfin, Kodi, VLC
 - [ ] Test audio output and Bluetooth (unconfirmed on LineageOS)
