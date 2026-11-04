@@ -28,6 +28,9 @@ It serves `http://<pi>:8765/reading` as JSON, and Kitchen Home polls it every mi
   ```
   Check with `docker exec homeassistant python -m homeassistant --script check_config -c /config`, then `docker restart homeassistant`.
 - **First readings:** 76.1 °F, 57.3 % (2026-11-04).
+- **Calibration:** placed next to the Office Sense HAT and the AcuRite (both ~77 °F), the AM2302 read a steady 75.6 °F, so it's **1.4 °F low**.
+  The fix is applied in Kitchen Home (`ha:living_room=+1.4`), not in Home Assistant, because 0.112's `dht` `temperature_offset` is unreliable with °F units.
+  Home Assistant's own UI still shows the raw value. Humidity isn't calibrated (no reference).
 - The old Home Assistant is "Unsupported/Unhealthy" because of its age, but it runs fine. The web UI takes several minutes after boot on the Pi 3.
 
 ## Install / update on a Pi

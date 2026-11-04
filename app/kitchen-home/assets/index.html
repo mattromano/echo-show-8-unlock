@@ -115,7 +115,7 @@
       </label>
       <label class="row"><input type="checkbox" id="bg-bing"> Include Bing daily photos</label>
       <h3 style="margin-top:14px">Room sensors</h3>
-      <p class="muted small">One per line: a Pi's address (port 8765 is assumed), e.g. <b>192.168.4.34</b>, or <b>ha:kitchen</b> for Home Assistant's sensor.kitchen_temperature / _humidity.</p>
+      <p class="muted small">One per line: a Pi's address (port 8765 is assumed), e.g. <b>192.168.4.34</b>, or <b>ha:kitchen</b> for Home Assistant's sensor.kitchen_temperature / _humidity. Add <b>=+1.4</b> (°F) to calibrate one, e.g. <b>ha:living_room=+1.4</b>.</p>
       <textarea id="sensor-list" rows="3"></textarea>
       <h3 style="margin-top:14px">Home Assistant</h3>
       <label class="row small muted">Address <input id="ha-url" class="wide-input" placeholder="http://192.168.4.37:8123"></label>

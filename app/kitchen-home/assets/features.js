@@ -308,7 +308,13 @@ setInterval(() => {
 //   "ha:kitchen"    Home Assistant entities sensor.kitchen_temperature (+ sensor.kitchen_humidity),
 //                   read with the long-lived token pasted into Settings → Home Assistant.
 // Office = Sense HAT Pi; Living room = AM2302 on the Home Assistant Pi; Bedroom Pi still to come.
-const sensorAddrs = () => store.get('sensors', ['192.168.4.34', 'ha:living_room']);
+// An optional "=±N" suffix adds a calibration offset in °F, e.g. "ha:living_room=+1.4".
+// The AM2302 read 75.6 °F next to the Office sensor and the AcuRite at ~77 °F (2026-11-04).
+const sensorAddrs = () => store.get('sensors', ['192.168.4.34', 'ha:living_room=+1.4']);
+const splitOffset = (entry) => {
+  const m = entry.match(/^(.*?)=([+-]?\d+(?:\.\d+)?)$/);
+  return m ? { addr: m[1], offF: parseFloat(m[2]) } : { addr: entry, offF: 0 };
+};
 const sensorUrl = (a) => (a.startsWith('http') ? a : `http://${a}${a.includes(':') ? '' : ':8765'}/reading`);
 const haUrl = () => store.get('ha.url', 'http://192.168.4.37:8123').replace(/\/+$/, '');
 const haToken = () => store.get('ha.token', '');
@@ -337,7 +343,12 @@ async function readHa(name) {
   return out;
 }
 
-const readSensor = (a) => (a.startsWith('ha:') ? readHa(a.slice(3)) : fetchJson(sensorUrl(a), {}, 5000));
+async function readSensor(entry) {
+  const { addr, offF } = splitOffset(entry);
+  const r = await (addr.startsWith('ha:') ? readHa(addr.slice(3)) : fetchJson(sensorUrl(addr), {}, 5000));
+  if (r && r.temp_f !== undefined && offF) r.temp_f += offF;
+  return r;
+}
 
 async function refreshIndoor() {
   const addrs = sensorAddrs();
