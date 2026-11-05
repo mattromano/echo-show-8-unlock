@@ -241,7 +241,9 @@ input[type=range] { width: 100%; height: 40px; accent-color: var(--accent); }
 #home > .top > .clock-block { grid-area: clock; justify-content: flex-start; }
 #home > .top > .weather { grid-area: weather; }
 #home > .apps { grid-area: apps; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 12px; min-height: 0; }
-#home > .apps .tile { height: auto; min-height: 0; }
+#home > .apps .tile { height: auto; min-height: 0; gap: 4px; padding: 6px 0; overflow: hidden; }
+#home > .apps .tile img, #home > .apps .tile > div { width: 44px !important; height: 44px !important; }
+#home > .apps .tile span { font-size: 13px; line-height: 1.2; }
 #home > .bottom { grid-area: bottom; }
 #home > .cal { grid-area: cal; }
 
