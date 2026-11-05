@@ -340,7 +340,10 @@ function loadFromCache() {
   });
   // Free/busy-only feeds (e.g. a work Outlook that only allows "Can view when I'm busy"):
   // "Free" blocks don't block time, so drop them.
-  for (let i = all.length - 1; i >= 0; i--) if (/^free$/i.test(all[i].title.trim())) all.splice(i, 1);
+  // Exchange keeps cancelled meetings as "Canceled: <title>" until you delete them: hide those too.
+  for (let i = all.length - 1; i >= 0; i--) {
+    if (/^free$/i.test(all[i].title.trim()) || /^cancell?ed\s*:/i.test(all[i].title.trim())) all.splice(i, 1);
+  }
   // Same meeting on two calendars (e.g. invited on both): show once.
   const seen = new Map();
   all.sort((a, b) => a.start - b.start || a.source - b.source).forEach((e) => {
@@ -366,6 +369,9 @@ function dayLabel(dayStart, todayStart) {
   if (diff === 1) return 'Tomorrow';
   return new Date(dayStart).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 }
+
+// Video-call "locations" (Teams/Zoom/Meet links) add nothing on a kitchen screen.
+const showLoc = (loc) => !!loc && !/(microsoft teams|teams meeting|^teams$|zoom|google meet|webex|https?:\/\/)/i.test(loc);
 
 function renderCalendar() {
   const el = $('#cal-list');
@@ -402,7 +408,7 @@ function renderCalendar() {
       const tentative = /^tentative$/i.test(e.title.trim());
       html += `<div class="cal-ev${live ? ' live' : ''}${generic ? ' fb' : ''}${tentative ? ' tent' : ''}" style="--c:${colors[e.source] || '#888'}">`
         + `<span class="cal-bar"></span><span class="cal-when">${when}</span>`
-        + `<span class="cal-title">${esc(title)}${e.location ? `<span class="cal-loc"> · ${esc(e.location)}</span>` : ''}</span></div>`;
+        + `<span class="cal-title">${esc(title)}${showLoc(e.location) ? `<span class="cal-loc"> · ${esc(e.location)}</span>` : ''}</span></div>`;
     });
   }
   if (!any) html = `<div class="cal-none muted">Nothing scheduled for the next ${CAL.days} days</div>`;

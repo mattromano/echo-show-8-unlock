@@ -275,3 +275,15 @@ input[type=range] { width: 100%; height: 40px; accent-color: var(--accent); }
 .cal-when { min-width: 96px; }
 .cal-ev.fb .cal-title { color: var(--muted); }
 .cal-ev.tent .cal-bar { background: repeating-linear-gradient(180deg, var(--c) 0 4px, transparent 4px 7px); }
+
+/* Long event titles must never widen the layout: tracks can't grow past their share,
+   and titles wrap to at most two lines in slightly smaller text. */
+#home { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+#home > .cal, #home > .top > .weather, #home > .apps { min-width: 0; }
+.cal-ev { align-items: flex-start; padding: 5px 6px 5px 0; }
+.cal-when { padding-top: 1px; min-width: 88px; font-size: 12px; }
+.cal-title {
+  font-size: 14px; line-height: 1.3; white-space: normal; overflow: hidden;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; word-break: break-word;
+}
+.cal-loc { font-size: 12px; }
