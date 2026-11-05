@@ -130,6 +130,25 @@
   </div>
 </div>
 
+<!-- Temperature history dashboard (tap the room temperatures to open) -->
+<div id="dash" class="sheet hidden">
+  <div class="sheet-head">
+    <h2>Temperatures</h2>
+    <div class="row">
+      <div class="seg" id="dash-range">
+        <button data-hours="24" class="on">24 h</button>
+        <button data-hours="168">7 days</button>
+        <button data-hours="720">30 days</button>
+      </div>
+      <button class="close" data-close>Done</button>
+    </div>
+  </div>
+  <div id="dash-stats" class="dash-stats"></div>
+  <div class="card dash-chart"><div class="dash-title">Temperature °F</div><svg id="dash-temp" preserveAspectRatio="none"></svg></div>
+  <div class="card dash-chart small"><div class="dash-title">Humidity %</div><svg id="dash-hum" preserveAspectRatio="none"></svg></div>
+  <div id="dash-msg" class="muted small"></div>
+</div>
+
 <!-- Kitchen timer picker -->
 <div id="timer-sheet" class="modal hidden">
   <div class="modal-card card timer-card">
@@ -197,5 +216,6 @@
 
 <script src="app.js"></script>
 <script src="features.js"></script>
+<script src="dashboard.js"></script>
 </body>
 </html>

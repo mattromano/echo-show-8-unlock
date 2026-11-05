@@ -65,3 +65,13 @@ The ~0.9 Â°F gap matches the AcuRite sitting on the floor while the HAT is at de
 - Don't run `sed -i "s/\r$//"` inline through `ssh` from PowerShell: the backslash gets eaten and it strips every trailing **r**. The files in this repo are already LF.
 - SSH key setup (the user types the password once):
   `type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh pi@<ip> "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys"`
+
+## Temperature logger (Office Pi, port 8766)
+
+`pi/temp-logger/temp_logger.py` runs as `kitchen-logger` on the Office Pi (192.168.4.34). Every 5 minutes it records each source in `/etc/kitchen-logger/sources.json` (Office, Living room via Home Assistant, Bedroom, Outside via Open-Meteo) into SQLite at `/var/lib/kitchen-logger/temps.db`.
+
+- `GET :8766/history?hours=24`: per-room series, averaged into buckets so ranges up to 30+ days stay small. `GET :8766/latest`: the last reading per room.
+- The Home Assistant token lives in `/etc/kitchen-logger/ha_token` (mode 600). The user pastes it in with `ssh -t pi@192.168.4.34 nano /etc/kitchen-logger/ha_token`. It is never committed.
+- Per-room calibration: `offset_f` in sources.json (Living room +1.4 °F for now).
+- Install/update: `scp -r pi/temp-logger pi@192.168.4.34:/home/pi/` then `ssh pi@192.168.4.34 'bash ~/temp-logger/install.sh'`.
+- Kitchen Home's dashboard (`assets/dashboard.js`) opens when you tap the room temperatures; it offers 24 h / 7 day / 30 day views.

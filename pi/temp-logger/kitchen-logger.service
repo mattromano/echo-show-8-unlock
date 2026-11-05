@@ -1,0 +1,13 @@
+[Unit]
+Description=Kitchen Home temperature logger (history JSON on :8766)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=pi
+ExecStart=/usr/bin/python3 /home/pi/temp-logger/temp_logger.py
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
