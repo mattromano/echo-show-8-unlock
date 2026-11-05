@@ -61,6 +61,24 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 input.wide-input { background: var(--bg-2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font: inherit; flex: 1; min-width: 240px; }
 textarea#sensor-list { width: 100%; background: var(--bg-2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font: inherit; }
 
+/* ---- temperature dashboard ---- */
+.indoor { cursor: pointer; }
+.seg { display: flex; background: var(--bg-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.seg button { padding: 7px 14px; border-radius: 999px; font-size: 14px; color: var(--muted); }
+.seg button.on { background: var(--card-2); color: var(--text); }
+.dash-stats { display: flex; gap: 10px; }
+.ds { flex: 1; padding: 10px 12px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.ds .n { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.ds .dot { width: 9px; height: 9px; border-radius: 50%; }
+.ds .v { font-size: 24px; font-weight: 300; margin: 2px 0; font-variant-numeric: tabular-nums; }
+.ds .mm { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dash-chart { padding: 10px 12px 6px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.dash-chart.small { flex: 0 0 120px; }
+.dash-title { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.dash-chart svg { flex: 1; width: 100%; min-height: 0; }
+.dash-chart text { fill: var(--muted); font-size: 11px; font-family: inherit; }
+#dash { gap: 10px; }
+
 /* ---- timers (chips under the clock) ---- */
 .timer-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
 .chip {
