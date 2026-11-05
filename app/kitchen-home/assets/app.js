@@ -13,11 +13,12 @@ const CONFIG = {
     'com.netflix.mediaclient.echo',
     'web:hulu',
     'web:peacock',
+    'org.smarttube.stable',
     'com.spotify.music',
+    'com.android.settings',
   ],
-  // The calendar card takes the space of two tiles (YouTube stays in the all-apps drawer,
-  // Android settings behind the gear button).
-  maxTiles: 4,
+  // Home row is a 3 x 2 grid beside the calendar card.
+  maxTiles: 6,
   // The Hulu/Peacock Android apps don't run here (Amazon ownership check / retired 32-bit build),
   // so these tiles open the websites in Kitchen Home's browser in desktop mode.
   webTiles: {
@@ -172,12 +173,7 @@ function labelFor(pkg) {
 }
 function tiles() {
   const t = store.get('tiles', CONFIG.defaultTiles);
-  let m = t.map((p) => CONFIG.migrate[p] || p);
-  if (!store.get('tiles.calMigrated', false)) {
-    // One time: free two slots for the calendar card.
-    m = m.filter((p) => p !== 'org.smarttube.stable' && p !== 'com.android.settings').slice(0, CONFIG.maxTiles);
-    store.set('tiles.calMigrated', true);
-  }
+  const m = t.map((p) => CONFIG.migrate[p] || p);
   if (m.join() !== t.join()) store.set('tiles', m);
   return m;
 }

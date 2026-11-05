@@ -26,11 +26,12 @@ as the HOME activity and shows a local HTML dashboard in a full-screen WebView.
 
 ## Calendar card
 
-![Calendar card preview (sample data)](../../docs/img/kitchen-home-calendar-preview.png)
+![Calendar card preview (sample data)](../../docs/img/kitchen-home-calendar-preview.jpg)
 
 `assets/calendar.js` shows **today + the next 3 days** from Outlook and Google, merged and sorted, with a colour bar per calendar.
-It sits right of the app tiles, so the home row now holds **4 tiles**. YouTube and Android Settings were dropped by a one-time
-migration (`tiles.calMigrated`): YouTube is still in the all-apps drawer, and Settings is behind the gear.
+It fills the space under the clock (left column), and the six app tiles become a **3 × 2 grid** under the weather card,
+stretched to fill the height, so there's no dead area. Layout via `grid-template-areas` at the end of `style.css`
+(`clock weather / cal weather / cal apps / bottom bottom`).
 
 - **Source:** each calendar's private iCal (`.ics`) link, pasted on the Echo in ⚙ Settings → **Calendars** (use scrcpy + Ctrl+V).
   Links are stored only in the Echo's WebView `localStorage` (`cal.feeds`), never in this repo.

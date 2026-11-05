@@ -208,18 +208,26 @@ input[type=range] { width: 100%; height: 40px; accent-color: var(--accent); }
 .toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); background: var(--card-2); border: 1px solid var(--line); padding: 12px 18px; border-radius: 999px; font-size: 15px; z-index: 30; }
 
 /* ===================== calendar card (calendar.js) =====================
- * The card sits right of the app tiles and runs down beside lights/now playing:
- *   top    top
- *   apps   cal
- *   bottom cal      (it stops above the round corner buttons) */
-#home { grid-template-columns: 1fr 360px; grid-template-areas: "top top" "apps cal" "bottom cal"; column-gap: 18px; }
-#home > .top { grid-area: top; }
-#home > .apps { grid-area: apps; grid-template-columns: repeat(4, 1fr); }
-#home > .bottom { grid-area: bottom; padding-right: 0; }
+ * Uses the empty space under the clock. Layout (no dead areas):
+ *   clock    weather
+ *   cal      weather
+ *   cal      apps (3 x 2 tiles, stretched to fill)
+ *   bottom   bottom   (lights + now playing, as before) */
+#home {
+  grid-template-columns: 1fr 1.25fr;
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-areas: "clock weather" "cal weather" "cal apps" "bottom bottom";
+  column-gap: 22px; row-gap: 16px;
+}
+#home > .top { display: contents; }
+#home > .top > .clock-block { grid-area: clock; justify-content: flex-start; }
+#home > .top > .weather { grid-area: weather; }
+#home > .apps { grid-area: apps; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 12px; min-height: 0; }
+#home > .apps .tile { height: auto; min-height: 0; }
+#home > .bottom { grid-area: bottom; }
 #home > .cal { grid-area: cal; }
-.bottom .np { width: 300px; }
 
-.cal { display: flex; flex-direction: column; min-height: 0; padding: 12px 14px 10px; margin-bottom: 64px; }
+.cal { display: flex; flex-direction: column; min-height: 0; padding: 12px 14px 10px; }
 .cal-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
 .cal-head .small { color: #ffb0a0; }
 .cal-list { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(180deg, #000 88%, transparent); }
