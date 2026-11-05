@@ -10,7 +10,8 @@ sed -i 's/\r$//' sensor_server.py kitchen-sensor.service
 if [ ! -f /etc/kitchen-sensor.conf ]; then
   printf 'ROOM=%s\nSENSOR=%s\n# CPU_K=0.35\n# OFFSET_C=0\n# DHT_PIN=4\n' "$ROOM" "$SENSOR" | sudo tee /etc/kitchen-sensor.conf >/dev/null
 fi
-sudo cp kitchen-sensor.service /etc/systemd/system/kitchen-sensor.service
+sed -e "s/^User=.*/User=$(whoami)/" -e "s#/home/pi/kitchen-sensor#$(pwd)#" kitchen-sensor.service \
+  | sudo tee /etc/systemd/system/kitchen-sensor.service >/dev/null
 sudo systemctl daemon-reload
 sudo systemctl enable --now kitchen-sensor.service
 sleep 3

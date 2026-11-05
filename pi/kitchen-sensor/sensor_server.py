@@ -7,7 +7,7 @@ as JSON on the LAN so the Echo's home screen can show it.
 
 Config comes from /etc/kitchen-sensor.conf (KEY=VALUE lines) or the environment:
   ROOM      display name, e.g. "Office"
-  SENSOR    sensehat | dht22
+  SENSOR    sensehat | dht22 (Python libs) | dht22-iio (kernel driver: dtoverlay=dht11,gpiopin=4)
   DHT_PIN   GPIO (BCM) number for the AM2302/DHT22 data pin (default 4)
   CPU_K     Sense HAT self-heating correction: room = t - CPU_K * (cpu - t)   (default 0.35)
   OFFSET_C  extra calibration offset in degrees C (default 0)
@@ -84,6 +84,33 @@ class SenseHatReader:
         return out
 
 
+class IioDhtReader:
+    """AM2302/DHT22 via the kernel driver (config.txt: dtoverlay=dht11,gpiopin=4), no Python libs needed."""
+    def __init__(self):
+        import glob
+        devs = [d for d in glob.glob('/sys/bus/iio/devices/iio:device*')
+                if os.path.exists(os.path.join(d, 'in_temp_input'))]
+        if not devs:
+            raise RuntimeError('no iio DHT device (add dtoverlay=dht11,gpiopin=4 and reboot)')
+        self.dev = devs[0]
+
+    def _read(self, name):
+        with open(os.path.join(self.dev, name)) as f:
+            return int(f.read().strip()) / 1000.0
+
+    def read(self):
+        for _ in range(6):  # the driver often returns EIO/timeouts; retry
+            try:
+                t = self._read('in_temp_input')
+                h = self._read('in_humidityrelative_input')
+                if -40 < t < 80 and 0 <= h <= 100:
+                    return {'raw_c': round(t, 2), 'temp_c': t + OFFSET_C, 'humidity': round(h, 1)}
+            except OSError:
+                pass
+            time.sleep(2.5)
+        raise RuntimeError('DHT22 (iio) read failed')
+
+
 class DhtReader:
     def __init__(self):
         pin = int(CFG.get('DHT_PIN', '4'))
@@ -113,7 +140,12 @@ class DhtReader:
         raise RuntimeError('DHT22 read failed')
 
 
-READER = SenseHatReader() if SENSOR == 'sensehat' else DhtReader()
+if SENSOR == 'sensehat':
+    READER = SenseHatReader()
+elif SENSOR in ('dht22-iio', 'iio'):
+    READER = IioDhtReader()
+else:
+    READER = DhtReader()
 history = []
 latest = {'room': ROOM, 'sensor': SENSOR, 'ok': False, 'error': 'warming up'}
 lock = threading.Lock()

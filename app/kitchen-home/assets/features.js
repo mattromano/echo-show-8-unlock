@@ -307,10 +307,10 @@ setInterval(() => {
 //   "192.168.4.34"  a Pi running pi/kitchen-sensor/sensor_server.py (serves /reading as JSON)
 //   "ha:kitchen"    Home Assistant entities sensor.kitchen_temperature (+ sensor.kitchen_humidity),
 //                   read with the long-lived token pasted into Settings → Home Assistant.
-// Office = Sense HAT Pi; Living room = AM2302 on the Home Assistant Pi; Bedroom Pi still to come.
+// Office = Sense HAT Pi (.34); Living room = AM2302 on the Home Assistant Pi; Bedroom = AM2302 on 8gigapi (.98).
 // An optional "=±N" suffix adds a calibration offset in °F, e.g. "ha:living_room=+1.4".
 // The AM2302 read 75.6 °F next to the Office sensor and the AcuRite at ~77 °F (2026-11-04).
-const sensorAddrs = () => store.get('sensors', ['192.168.4.34', 'ha:living_room=+1.4']);
+const sensorAddrs = () => store.get('sensors', ['192.168.4.34', 'ha:living_room=+1.4', '192.168.4.98']);
 const splitOffset = (entry) => {
   const m = entry.match(/^(.*?)=([+-]?\d+(?:\.\d+)?)$/);
   return m ? { addr: m[1], offF: parseFloat(m[2]) } : { addr: entry, offF: 0 };
@@ -362,7 +362,7 @@ async function refreshIndoor() {
     if (r && r.ok) cache[a] = r; else r = cache[a];
     if (!r || r.temp_f === undefined) return '';
     const stale = now - (r.updated || 0) > 15 * 60;
-    return `<div class="it${stale ? ' stale' : ''}"><span>${r.room}</span><b>${Math.round(r.temp_f)}°</b>`
+    return `<div class="it${stale ? ' stale' : ''}"><span>${r.room}</span><b>${r.temp_f.toFixed(1)}°</b>`
       + (r.humidity !== undefined ? `<span class="h">${Math.round(r.humidity)}%</span>` : '') + '</div>';
   }).join('');
   store.set('sensorCache', cache);

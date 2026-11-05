@@ -6,6 +6,7 @@ Wants=network-online.target
 [Service]
 User=pi
 ExecStart=/usr/bin/python3 /home/pi/kitchen-sensor/sensor_server.py
+# install.sh rewrites User= and the path for the Pi's actual user
 Restart=always
 RestartSec=10
 
