@@ -39,6 +39,15 @@
 
   <section class="apps" id="apps"></section>
 
+  <!-- Calendar card (calendar.js): Outlook + Google ICS feeds, merged -->
+  <section id="cal" class="cal card">
+    <div class="cal-head">
+      <span class="section-label">Calendar</span>
+      <span id="cal-status" class="muted small"></span>
+    </div>
+    <div id="cal-list" class="cal-list"></div>
+  </section>
+
   <section class="bottom">
     <div class="lights">
       <div class="lights-head">
@@ -103,8 +112,19 @@
 
     <div class="card setting">
       <h3>Home screen apps</h3>
-      <p class="muted">Tap apps to add or remove them from the home row (up to 6).</p>
+      <p class="muted">Tap apps to add or remove them from the home row (up to 4).</p>
       <div id="tile-picker" class="tile-picker"></div>
+    </div>
+
+    <div class="card setting cal-setting">
+      <h3>Calendars</h3>
+      <p class="muted small">Paste each calendar's private iCal (.ics) link. Outlook: Settings → Calendar → Shared calendars → Publish a calendar → ICS link.
+        Google: calendar settings → <i>Secret address in iCal format</i>. Links stay on this Echo only.</p>
+      <div id="cal-feeds" class="cal-feeds"></div>
+      <div class="row">
+        <button id="cal-add" class="pill">Add calendar</button>
+        <button id="cal-refresh" class="pill">Refresh now</button>
+      </div>
     </div>
 
     <div class="card setting">
@@ -197,5 +217,6 @@
 
 <script src="app.js"></script>
 <script src="features.js"></script>
+<script src="calendar.js"></script>
 </body>
 </html>

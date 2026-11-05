@@ -13,10 +13,11 @@ const CONFIG = {
     'com.netflix.mediaclient.echo',
     'web:hulu',
     'web:peacock',
-    'org.smarttube.stable',
     'com.spotify.music',
-    'com.android.settings',
   ],
+  // The calendar card takes the space of two tiles (YouTube stays in the all-apps drawer,
+  // Android settings behind the gear button).
+  maxTiles: 4,
   // The Hulu/Peacock Android apps don't run here (Amazon ownership check / retired 32-bit build),
   // so these tiles open the websites in Kitchen Home's browser in desktop mode.
   webTiles: {
@@ -171,7 +172,12 @@ function labelFor(pkg) {
 }
 function tiles() {
   const t = store.get('tiles', CONFIG.defaultTiles);
-  const m = t.map((p) => CONFIG.migrate[p] || p);
+  let m = t.map((p) => CONFIG.migrate[p] || p);
+  if (!store.get('tiles.calMigrated', false)) {
+    // One time: free two slots for the calendar card.
+    m = m.filter((p) => p !== 'org.smarttube.stable' && p !== 'com.android.settings').slice(0, CONFIG.maxTiles);
+    store.set('tiles.calMigrated', true);
+  }
   if (m.join() !== t.join()) store.set('tiles', m);
   return m;
 }
@@ -185,7 +191,7 @@ function tileHtml(pkg) {
 }
 
 function renderTiles() {
-  $('#apps').innerHTML = tiles().slice(0, 6).map(tileHtml).join('');
+  $('#apps').innerHTML = tiles().slice(0, CONFIG.maxTiles).map(tileHtml).join('');
 }
 
 function renderDrawer() {
@@ -228,8 +234,8 @@ document.addEventListener('click', (e) => {
     let sel = tiles().slice();
     const pkg = p.dataset.pick;
     if (sel.includes(pkg)) sel = sel.filter((x) => x !== pkg);
-    else if (sel.length < 6) sel.push(pkg);
-    else { toast('The home row holds 6 apps. Remove one first.'); return; }
+    else if (sel.length < CONFIG.maxTiles) sel.push(pkg);
+    else { toast(`The home row holds ${CONFIG.maxTiles} apps. Remove one first.`); return; }
     store.set('tiles', sel);
     renderTilePicker();
     renderTiles();
