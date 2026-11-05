@@ -72,6 +72,6 @@ The ~0.9 Â°F gap matches the AcuRite sitting on the floor while the HAT is at de
 
 - `GET :8766/history?hours=24`: per-room series, averaged into buckets so ranges up to 30+ days stay small. `GET :8766/latest`: the last reading per room.
 - The Home Assistant token lives in `/etc/kitchen-logger/ha_token` (mode 600). The user pastes it in with `ssh -t pi@192.168.4.34 nano /etc/kitchen-logger/ha_token`. It is never committed.
-- Per-room calibration: `offset_f` in sources.json (Living room +1.4 °F for now).
+- Per-room calibration: `offset_f` in sources.json (Living room +1.4 ï¿½F for now).
 - Install/update: `scp -r pi/temp-logger pi@192.168.4.34:/home/pi/` then `ssh pi@192.168.4.34 'bash ~/temp-logger/install.sh'`.
 - Kitchen Home's dashboard (`assets/dashboard.js`) opens when you tap the room temperatures; it offers 24 h / 7 day / 30 day views.
