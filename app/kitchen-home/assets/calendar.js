@@ -338,6 +338,9 @@ function loadFromCache() {
     const c = cache[normUrl(f.url)];
     if (c) c.events.forEach((e) => all.push(Object.assign({}, e, { source: i })));
   });
+  // Free/busy-only feeds (e.g. a work Outlook that only allows "Can view when I'm busy"):
+  // "Free" blocks don't block time, so drop them.
+  for (let i = all.length - 1; i >= 0; i--) if (/^free$/i.test(all[i].title.trim())) all.splice(i, 1);
   // Same meeting on two calendars (e.g. invited on both): show once.
   const seen = new Map();
   all.sort((a, b) => a.start - b.start || a.source - b.source).forEach((e) => {
@@ -392,10 +395,14 @@ function renderCalendar() {
     html += `<div class="cal-day">${dayLabel(ds, start)}</div>`;
     items.forEach((e) => {
       const live = !e.allDay && e.start <= now && e.end > now;
-      const when = e.allDay ? 'All day' : fmtTime(e.start);
-      html += `<div class="cal-ev${live ? ' live' : ''}" style="--c:${colors[e.source] || '#888'}">`
+      const when = e.allDay ? 'All day' : fmtTime(e.start) + '–' + fmtTime(e.end);
+      // Free/busy-only entries carry no real title: label them with the calendar's name instead.
+      const generic = /^(busy|tentative|away|out of office|working elsewhere)$/i.test(e.title.trim());
+      const title = generic ? `${(list[e.source] && list[e.source].name) || 'Calendar'} · ${e.title.trim().toLowerCase()}` : e.title;
+      const tentative = /^tentative$/i.test(e.title.trim());
+      html += `<div class="cal-ev${live ? ' live' : ''}${generic ? ' fb' : ''}${tentative ? ' tent' : ''}" style="--c:${colors[e.source] || '#888'}">`
         + `<span class="cal-bar"></span><span class="cal-when">${when}</span>`
-        + `<span class="cal-title">${esc(e.title)}${e.location ? `<span class="cal-loc"> · ${esc(e.location)}</span>` : ''}</span></div>`;
+        + `<span class="cal-title">${esc(title)}${e.location ? `<span class="cal-loc"> · ${esc(e.location)}</span>` : ''}</span></div>`;
     });
   }
   if (!any) html = `<div class="cal-none muted">Nothing scheduled for the next ${CAL.days} days</div>`;

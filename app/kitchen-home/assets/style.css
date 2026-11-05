@@ -272,3 +272,6 @@ input[type=range] { width: 100%; height: 40px; accent-color: var(--accent); }
 .cal-del { padding: 8px 12px; }
 .cal-feed-st { grid-column: 2 / -1; margin-top: -4px; }
 .cal-feed-st.bad { color: #ffb0a0; }
+.cal-when { min-width: 96px; }
+.cal-ev.fb .cal-title { color: var(--muted); }
+.cal-ev.tent .cal-bar { background: repeating-linear-gradient(180deg, var(--c) 0 4px, transparent 4px 7px); }
