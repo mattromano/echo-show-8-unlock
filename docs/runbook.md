@@ -162,3 +162,12 @@ Check items off as they're done, and log anything unexpected in the Log section 
 | 2026-11-04 | 3-4 | **Rooted Fire OS.** boot-root.img flashed. Fire OS 6574.1 boots with the 6.5.7.1 boot image; adb runs as root (`uid=0`, context `u:r:su:s0`), SELinux is Enforcing, `disable_bouncer=1`, and Wi-Fi is still off. /data has 1.3 GB free. Launcher is `com.amazon.paladin`. |
 | 2026-11-04 | 5 | Backup is partial. TWRP's adb keeps going "offline", partly from the TWRP lock screen (the timeout setting doesn't survive a reboot), and the raw `kb` and `persist` reads hung. Saved: `MISC`, `dkb`, `logo` raw images, and `persist` **as files** (`calibration.bin`, `dha_certificate.pem`). Hashes are in `backups/2026-11-04-stock/SHA256SUMS.txt`. Not saved: `kb`, `boot`, `system`, `metadata`, `swdl`, `expdb`. boot and system can be restored from a stock update.bin (ftvdb.com) through TWRP, per the thread. |
 | 2026-11-04 | 0 | Stock fastboot works (three buttons while connecting power). Kindle Fire driver gives "Android Bootloader Interface" (USB 0BB4:0C01). getvar: product=CROWN, secure=yes, unlock_status=false, lk_build_desc=44072a3-20240709_164449, max-download-size=0x6d00000. This LK matches a reported successful 6.5.7.4 unlock (tjbaker72, 2026-10-30). The patched LK is fbacd25-20260415_110052. |
+
+## Wi-Fi adb (2026-11-04, user chose "always on")
+
+- Enabled with `adb shell setprop persist.adb.tcp.port 5555` plus `adb tcpip 5555`. The Echo listens on **192.168.4.113:5555** and should survive reboots (not yet verified across a reboot).
+- **Security:** the rooted boot image has `ro.adb.secure=0`, so this is **unauthenticated root adb for anything on the LAN**. Keep guests on a guest network.
+  **Undo:** `adb shell setprop persist.adb.tcp.port ""`, then `adb usb`.
+- After unplugging USB (or restarting the PC), run `scripts\echo-connect.ps1`. All scripts then work over Wi-Fi.
+  With USB **and** Wi-Fi both connected, plain `adb` fails with "more than one device".
+- Reserve 192.168.4.113 for the Echo in the router, as with the Pis.

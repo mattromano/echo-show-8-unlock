@@ -39,15 +39,16 @@
 
   <section class="apps" id="apps"></section>
 
-  <section class="bottom">
-    <div class="lights">
-      <div class="lights-head">
-        <span class="section-label">Lights</span>
-        <span id="hue-status" class="muted small"></span>
-      </div>
-      <div id="rooms" class="rooms"></div>
+  <!-- Calendar card (calendar.js): Outlook + Google ICS feeds, merged -->
+  <section id="cal" class="cal card">
+    <div class="cal-head">
+      <span class="section-label">Calendar</span>
+      <span id="cal-status" class="muted small"></span>
     </div>
+    <div id="cal-list" class="cal-list"></div>
+  </section>
 
+  <section class="bottom">
     <div id="np" class="np card hidden">
       <img id="np-art" class="np-art" alt="">
       <div class="np-text">
@@ -63,6 +64,9 @@
   </section>
 
   <nav class="corner">
+    <button id="btn-lights" class="round" aria-label="Lights">
+      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 21h6v-1H9v1zm3-19a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+    </button>
     <button id="btn-timer" class="round" aria-label="Kitchen timer">
       <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 1h6v2H9zm10.03 6.39 1.42-1.42-1.41-1.41-1.42 1.42A9 9 0 1 0 19.03 7.39zM12 20a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm1-11h-2v5h2z"/></svg>
     </button>
@@ -105,6 +109,17 @@
       <h3>Home screen apps</h3>
       <p class="muted">Tap apps to add or remove them from the home row (up to 6).</p>
       <div id="tile-picker" class="tile-picker"></div>
+    </div>
+
+    <div class="card setting cal-setting">
+      <h3>Calendars</h3>
+      <p class="muted small">Paste each calendar's private iCal (.ics) link. Outlook: Settings → Calendar → Shared calendars → Publish a calendar → ICS link.
+        Google: calendar settings → <i>Secret address in iCal format</i>. Links stay on this Echo only.</p>
+      <div id="cal-feeds" class="cal-feeds"></div>
+      <div class="row">
+        <button id="cal-add" class="pill">Add calendar</button>
+        <button id="cal-refresh" class="pill">Refresh now</button>
+      </div>
     </div>
 
     <div class="card setting">
@@ -177,6 +192,19 @@
 </div>
 
 <!-- Brightness sheet for a room -->
+<!-- Lights (opened from the bulb button; Hue rooms render into #rooms) -->
+<div id="lights-sheet" class="modal hidden">
+  <div class="modal-card card lights-card">
+    <div class="lights-head">
+      <h3>Lights</h3>
+      <span id="hue-status" class="muted small"></span>
+    </div>
+    <div id="rooms" class="rooms"></div>
+    <p class="muted small">Tap a room to switch it on or off; hold it for brightness.</p>
+    <div class="row end"><button class="pill" data-close>Done</button></div>
+  </div>
+</div>
+
 <div id="dimmer" class="modal hidden">
   <div class="modal-card card">
     <h3 id="dimmer-title">Room</h3>
@@ -217,5 +245,6 @@
 <script src="app.js"></script>
 <script src="features.js"></script>
 <script src="dashboard.js"></script>
+<script src="calendar.js"></script>
 </body>
 </html>
