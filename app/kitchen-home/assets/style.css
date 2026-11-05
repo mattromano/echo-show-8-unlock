@@ -287,3 +287,15 @@ input[type=range] { width: 100%; height: 40px; accent-color: var(--accent); }
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; word-break: break-word;
 }
 .cal-loc { font-size: 12px; }
+
+/* Lights moved into a pop-up; the bottom row now only holds now-playing and keeps room for the corner buttons. */
+#home > .bottom { min-height: 46px; padding-right: 230px; }
+.lights-card { width: 720px; max-width: 92vw; }
+.lights-card .lights-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+.lights-card .lights-head h3 { margin: 0; }
+.lights-card .rooms { flex-wrap: wrap; overflow: visible; padding-right: 0; }
+.lights-card .room { flex: 1 1 200px; }
+#dimmer { z-index: 21; }
+/* Pop-ups sit over a busy home screen: make them solid so text behind doesn't bleed through. */
+.modal { background: rgba(0, 0, 0, .72); }
+.modal .modal-card { background: rgba(16, 21, 29, .97); }

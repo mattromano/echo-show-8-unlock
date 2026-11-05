@@ -474,6 +474,20 @@ document.addEventListener('click', (e) => {
 });
 $('#btn-settings').addEventListener('click', renderFeedSettings);
 
+/* ------------------------- lights button -------------------------------- */
+// The Lights row moved off the home screen into a pop-up opened from the bulb button.
+$('#btn-lights').addEventListener('click', () => {
+  closeSheets();
+  $('#lights-sheet').classList.remove('hidden');
+  if (typeof refreshRooms === 'function') refreshRooms();
+});
+// Closing the dimmer should drop back to the lights pop-up, not to the home screen.
+$('#dimmer').addEventListener('click', (e) => {
+  if (e.target.closest('[data-close]') || e.target.closest('#dimmer-off')) {
+    setTimeout(() => $('#lights-sheet').classList.remove('hidden'), 0);
+  }
+});
+
 /* -------------------------------- boot ---------------------------------- */
 loadFromCache();
 renderCalendar();
